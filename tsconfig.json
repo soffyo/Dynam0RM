@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "baseUrl": ".",
+        "outDir": ".",
+        "target": "ES2015",
+        "lib": ["ES2017"],
+        "declaration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "resolveJsonModule": true,
+        "strict": true,
+        "strictPropertyInitialization": false
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "include": [
+        "src"
+    ]
+}

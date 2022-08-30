@@ -1,43 +1,43 @@
 # User guide
 
-* [Introduction]()
-* [Define a Schema](https://github.com/soffyo/Dynam0RX#define-a-schema)
-* [Instance Methods](https://github.com/soffyo/Dynam0RX#instance-methods)
-  * [Put](https://github.com/soffyo/Dynam0RX#put)
-  * [Save](https://github.com/soffyo/Dynam0RX#save)
-  * [Get](https://github.com/soffyo/Dynam0RX#get)
-  * [Delete](https://github.com/soffyo/Dynam0RX#delete)
-     * [Conditional Delete](https://github.com/soffyo/Dynam0RX#conditional-delete)
-  * [Update](https://github.com/soffyo/Dynam0RX#update)
-    * [Conditional Update](https://github.com/soffyo/Dynam0RX#conditional-update)
-* [Static Methods](https://github.com/soffyo/Dynam0RX#static-methods)
-  * [Initialize](https://github.com/soffyo/Dynam0RX#initialize)
-  * [Update](https://github.com/soffyo/Dynam0RX#update-1)
-  * [Drop](https://github.com/soffyo/Dynam0RX#drop)
-  * [BatchPut](https://github.com/soffyo/Dynam0RX#batchput)
-  * [BatchGet](https://github.com/soffyo/Dynam0RX#batchget)
-  * [BatchDelete](https://github.com/soffyo/Dynam0RX#batchdelete)
-  * [Query](https://github.com/soffyo/Dynam0RX#query)
-* [Components](https://github.com/soffyo/Dynam0RX#importing)
-  * [Dynam0RX Class](https://github.com/soffyo/Dynam0RX#dynam0rx-class)
-  * [Decorators](https://github.com/soffyo/Dynam0RX#decorators)
-    * [Schema](https://github.com/soffyo/Dynam0RX#schema)
-    * [PartitionKey](https://github.com/soffyo/Dynam0RX#partitionkey)
-    * [SortKey](https://github.com/soffyo/Dynam0RX#sortkey)
-  * [Conditions Operators](https://github.com/soffyo/Dynam0RX#conditions-operators)
+* [Introduction](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#introduction)
+* [Define a Schema](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
+* [Instance Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#instance-methods)
+  * [Put](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#put)
+  * [Save](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#save)
+  * [Get](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#get)
+  * [Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#delete)
+     * [Conditional Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-delete)
+  * [Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#update)
+    * [Conditional Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-update)
+* [Static Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#static-methods)
+  * [Initialize](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#initialize)
+  * [Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#update-1)
+  * [Drop](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#drop)
+  * [BatchPut](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchput)
+  * [BatchGet](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchget)
+  * [BatchDelete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchdelete)
+  * [Query](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#query)
+* [Components](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#importing)
+  * [Dynam0RX Class](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#dynam0rx-class)
+  * [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators)
+    * [Schema](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#schema)
+    * [PartitionKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#partitionkey)
+    * [SortKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#sortkey)
+  * [Conditions Operators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditions-operators)
 ## Introduction
 This guide will focus on Dynam0RX client workflow, covering all its methods and some of the use cases. Things that are strictly related to DynamoDB basic concepts will not be covered as the guide is meant for developers who already have an idea of what DynamoDB is. However, you will find useful links to the original documentation, pointing you in the right direction if you need to learn more about DynamoDB. 
 ## Define a Schema
 As seen on the [main page](https://github.com/soffyo/Dynam0RX#how-does-it-work), we will be working on *Schemas*.
 ## Instance Methods
-When we talk about an *instance* in this guide, we refer to a possible iteration of the schema defined by the class. Instances have methods which can be used to work with them. In this guide we will refer to the `User` class from [before](https://github.com/soffyo/Dynam0RX#how-does-it-work)
+When we talk about an *instance* in this guide, we refer to a possible iteration of the schema defined by the class. Instances have methods which can be used to work with them. In this guide we will refer to the `User` class from [before](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
 >### *Create the table first*
 >To create the Table we will just do
 >```typescript
 >await User.init()
 >```
 > This will create a table at DynamoDB named *User*.
-> More about this method will be covered in the [*Static Methods*](https://github.com/soffyo/Dynam0RX#static-methods) part of the guide.
+> More about this method will be covered in the [*Static Methods*](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#static-methods) part of the guide.
 ### Put
 Now we can start creating instances and put them to the table, let's create a `User`
 ```typescript
@@ -141,7 +141,7 @@ await keyforJim.delete({
 // Will fail because "jim"'s role field from before doesn't contain "ADMIN"
 // Notice how we used "keyforJim" which shows us that only a primary key is needed.
 ```
-A detailed description of possible conditions and how to use them can be found later in this guide, in the [Conditions section](https://github.com/soffyo/Dynam0RX#conditions).
+A detailed description of possible conditions and how to use them can be found later in this guide, in the [Conditions section](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditions).
 ### Update
 We can use `update` to make changes on an existent instance only if it is already present on the table. If no matching instance is found, the operation will fail. Let's say that the following *Primary key*, `id: 300` doesn't exist on the table
 ```typescript
@@ -272,7 +272,7 @@ class Article extends Dynam0RX {
 }
 ```
 Unlike before, here we have used `@sortKey` decorator too, which will create a full *Primary Key*. 
-> You'll learn more about [Decorators](https://github.com/soffyo/Dynam0RX#decorators) in the dedicated section.
+> You'll learn more about [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators) in the dedicated section.
 
 Plus, our partition key is already assigned with a `readonly` clause and a literal type. This means that every instance in this table will have a *partition key* of type `string` and with a value of `"slug"`. The reason we designed our schema like this is because we plan to use `query` method on this table to retrieve the data. Let's see how does it work
 ```typescript
@@ -283,9 +283,9 @@ As we already know, every element on the `Articles` table have the same *partiti
 TODO - Update the table
 ## Components 
 Dynam0RX consists of three main components that can be imported from the package:
-* [Dynam0RX Class](https://github.com/soffyo/Dynam0RX#dynam0rx-class)
-* [Decorators](https://github.com/soffyo/Dynam0RX#decorators)
-* [Conditional Operators](https://github.com/soffyo/Dynam0RX#conditional-operators)
+* [Dynam0RX Class](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#dynam0rx-class)
+* [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators)
+* [Conditional Operators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-operators)
 
 ### Dynam0RX Class
 As we've seen before, when we define a *Schema* we create a new class. For all the methods to be available on this *schema-class*, as seen in the above examples, we need our class to extend the main `Dynam0RX` class.

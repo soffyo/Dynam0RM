@@ -39,7 +39,7 @@ await user.save()
 
 await user.delete()
 ``` 
-A detailed explanation of how this client works can be found in the **[User Guide]()**.
+A detailed explanation of how this client works can be found in the **[User Guide](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md)**.
 
 
 

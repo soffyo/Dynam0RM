@@ -1,5 +1,5 @@
 import { Dynam0RX, partitionKey, sortKey, Schema } from "../src"
-import operators, { equal, between } from "../src/operators"
+import operators, { equal, between, contains } from "../src/operators"
 import * as dynamoDBConfig from "./dbconfig.json"
 
 @Schema({ dynamoDBConfig })
@@ -70,27 +70,23 @@ test("0RX", async function() {
     zero.number = 9000
     zero.numberList = [2000,3000,4000,6789]
     zero.map!.a!.num = 50
-    await zero.update({
-        map: {
-            a: {
-                num: equal(30)
-            }
-        }
-    })
+    console.log(await zero.update({
+        numberList: contains(20)
+    }))
     one.number = 10.30
     one.string = "Saved updated string"
     await one.save()
-    console.dir(await Test.scan(), { depth: null })
+    //console.dir(await Test.scan(), { depth: null })
     await Test.drop()
 })
 
 test("QUERY", async function() {
     console.log((await QueryTest.init()).response)
     const items = new Array(101).fill(0).map((item, index) => new QueryTest({ id: index, content: "this is the content num." + index }))
-    console.log((await QueryTest.batchPut(items)).response)
+    //console.log((await QueryTest.batchPut(items)).response)
     const q = await QueryTest.query({ name: "slug" }, 10)
     q[9].content = "custom item content"
     q[9].save()
-    console.dir(await QueryTest.query({ name: "slug", id: between(5,8) }))
+    //console.dir(await QueryTest.query({ name: "slug", id: between(5,8) }))
     await QueryTest.drop()
 })

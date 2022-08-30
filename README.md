@@ -1,8 +1,8 @@
 # Dynam0RX 
 ## What it is
-Dynam0RX is an ORM client for *Amazon DynamoDB*. It provides an API which allows to define *schemas* and enables a clean and fast workflow based on *classes*. [DynamoDB API]() can be very tedious and writing many similar tasks or complicated conditional operations can quickly become painful: that is why this client was created. It is completely based on and bound to Typescript, providing type safety and preventing errors, accelerating the process of working with DynamoDB.
+Dynam0RX is an ORM client for *Amazon DynamoDB*. It provides an API which allows to define *schemas* and enables a clean and fast workflow based on *classes*. [DynamoDB API](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations_Amazon_DynamoDB.html) can be very tedious and writing many similar tasks or complicated conditional operations can quickly become painful: that is why this client was created. It is completely based on and bound to Typescript, providing type safety and preventing errors, accelerating the process of working with DynamoDB.
 ## How does it work
-It makes use of Javascript classes and Typescript decorators to define strongly typed *Schemas* from which [*Primary keys*]() can be inferred thanks to Reflect Metadata. It is just as simple as defining a class with its properties and applying the appropriate decorators:
+It makes use of Javascript classes and Typescript decorators to define strongly typed *Schemas* from which *Primary key* can be inferred thanks to Reflect Metadata. It is just as simple as defining a class with its properties and applying the appropriate decorators:
 ```typescript
 @Schema()
 class User extends Dynam0RX {
@@ -31,7 +31,7 @@ If we wanted to give it a different name, we would've passed the `{ tableName }`
 ```typescript
 @Schema({ tableName: "Users Table" })
 ```
-> This has been included in the *Instance Methods* section for ease of reading but it belogs to the [*Static Methods*]() part of the guide.
+> This has been included in the *Instance Methods* section for ease of reading but it belogs to the [*Static Methods*](https://github.com/soffyo/Dynam0RX#user-guide---static-methods) part of the guide.
 ### Put
 Now we can start creating instances and put them to the table, let's create a `User`
 ```typescript
@@ -59,7 +59,7 @@ const bob = new User({
     role: ["ADMIN", "USER"]
 })
 ```
-When we're done, we can *put* it 
+When we're done, we can `put` it 
 ```typescript
 await bob.put()
 ```
@@ -152,7 +152,7 @@ What we have seen before were called *Instance Methods* because they are execute
 ```typescript
 await User.init()
 ```
-This method wasn't executed on an instance of `User` but on `User` itself. Just think of the `User` class as a representation of the table and the data type that will populate it: the above method will just create the table for the first time.
+This method wasn't executed on an instance of `User` but on `User` itself. Just think of the `User` class as a representation of the table and the data type that will populate it: the above method will just create the table for the first time (if it doesn't already exist).
 ### Drop
 Similarly, if some time in the future we'll need to delete the table entirely with all its content, we will do
 ```typescript
@@ -242,5 +242,5 @@ Plus, our partition key is already assigned with a `readonly` clause and a liter
 ```typescript
 const articles = await Article.query({ slug: "slug", id: between(10,20) })
 ```
-As we already know, every element on the `Articles` table have the same *partition key* and a unique *sort key*. `Query` method performs a search on elements with the same *partition key* based on the *sort key* value. In the example above, an array containing all the instances with an `id` field between `10` and `20` will be returned 
+As we already know, every element on the `Articles` table have the same *partition key* and a unique *sort key*. `query` method performs a search on elements with the same *partition key* based on the *sort key* value. In the example above, an array containing all the instances with an `id` field between `10` and `20` will be returned. Of course this is only one of the many ways that DynamoDB `Query` functionality can be used.
 

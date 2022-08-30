@@ -132,7 +132,7 @@ await keyforJim.delete({
 
 // Will fail because "jim"'s role field doesn't contain "ADMIN"
 ```
-A detailed description of possible conditions and how to use them can be found [later in this guide]().
+A detailed description of possible conditions and how to use them can be found [later in this guide](https://github.com/soffyo/Dynam0RX#user-guide---conditions).
 ### Update
 We can update an existent instance only if it is already present on the table. If no matching instance is found, the operation will fail. Conditional updates are also supported as they are one of the most useful feature of DynamoDB
 ```typescript
@@ -243,4 +243,36 @@ Plus, our partition key is already assigned with a `readonly` clause and a liter
 const articles = await Article.query({ slug: "slug", id: between(10,20) })
 ```
 As we already know, every element on the `Articles` table have the same *partition key* and a unique *sort key*. `query` method performs a search on elements with the same *partition key* based on the *sort key* value. In the example above, an array containing all the instances with an `id` field between `10` and `20` will be returned. Of course this is only one of the many ways that DynamoDB `Query` functionality can be used.
+## User Guide - Conditions
+Earlier on this guide, we have seen the use of conditions on some methods in the form of functions. To use these, they need to be imported from the package's `/operators` path
+```typescript
+import { equal } from "dynam0rx/operators"
+
+await something.delete({ id: equal(119) })
+```
+They can also be imported as an object to help keep the `import` section of your files clean
+```typescript
+import operators from "dynam0rx/operators"
+
+await something.delete({
+    id: operators.equal(119),
+    name: operators.begins_with("R"),
+    info: {
+        content: operators.contains("some content in between"),
+        date: operators.greater_equal(30082022),
+        author: {
+            // They can be used on deeply nested objects
+            name: operators.attribute_exists(true),
+            articles: operators.size({ ">": 30 })
+        }
+    }
+})
+```
+It is possible to use multiple condition on a certain attribute
+```typescript
+{
+    id: { ...attribute_type("number"), ...between(10,13) },
+    name: {...begin_with("Hor"), ...contains("j"), ...attribute_type("string") }
+}
+```
 

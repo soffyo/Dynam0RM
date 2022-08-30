@@ -30,7 +30,7 @@ class Test extends Dynam0RX {
 @Schema({ dynamoDBConfig })
 class QueryTest extends Dynam0RX<QueryTest> {
     @partitionKey
-    name: "slug" = "slug" 
+    readonly name: "slug" = "slug" 
     @sortKey
     id: number
     content?: string
@@ -64,7 +64,7 @@ one.map = {
 }
 
 test("0RX", async function() {
-    const init = await Test.init()
+    /* const init = await Test.init()
     await one.save()
     await zero.put()
     zero.number = 9000
@@ -77,16 +77,16 @@ test("0RX", async function() {
     one.string = "Saved updated string"
     await one.save()
     //console.dir(await Test.scan(), { depth: null })
-    await Test.drop()
+    await Test.drop() */
 })
 
 test("QUERY", async function() {
     console.log((await QueryTest.init()).response)
     const items = new Array(101).fill(0).map((item, index) => new QueryTest({ id: index, content: "this is the content num." + index }))
-    //console.log((await QueryTest.batchPut(items)).response)
+    console.log((await QueryTest.batchPut(items)).response)
     const q = await QueryTest.query({ name: "slug" }, 10)
     q[9].content = "custom item content"
     q[9].save()
-    //console.dir(await QueryTest.query({ name: "slug", id: between(5,8) }))
+    console.dir(await QueryTest.query({ name: "slug", id: between(5,8) }))
     await QueryTest.drop()
 })

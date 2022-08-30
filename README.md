@@ -7,9 +7,8 @@ It makes use of Javascript classes and Typescript decorators to define strongly 
 @Schema()
 class User extends Dynam0RX {
     @partitionKey
-    username: string
-    @sortKey
     id: number
+    username: string
     email: string
     info: {
         realname: string
@@ -20,7 +19,7 @@ class User extends Dynam0RX {
 ```
 This is all that's needed to start working with the schema. Now it is possible to perform all the operations supported by DynamoDB on `User`. 
 
-## **API** - Instance Methods
+## User guide - Instance Methods
 Let's walk through all the main basic operations one would normally perform on this schema.
 ### Initialize
 To create the Table we will just do
@@ -38,14 +37,14 @@ Now we can start creating instances and put them to the table, let's create a `U
 ```typescript
 const bob = new User()
 
-user.username = "bob90"
-user.id = 10
-user.email = "soffyo@dynam0rx.com"
-user.info = {
+bob.id = 10
+bob.username = "bob90"
+bob.email = "soffyo@dynam0rx.com"
+bob.info = {
     realname: "Robert",
     age: 32
 }
-user.role = ["ADMIN", "USER"]
+bob.role = ["ADMIN", "USER"]
 
 // or we can simply define the properties directly while constructing the instance
 
@@ -56,7 +55,7 @@ const bob = new User({
     info: {
         realname: "Robert",
         age: 32
-    }
+    },
     role: ["ADMIN", "USER"]
 })
 ```
@@ -64,7 +63,7 @@ When we're done, we can *put* it
 ```typescript
 await bob.put()
 ```
-This will only succeed if an instance with the same *primary key* doesn't already exist, otherwise, the operation will fail.
+This will only succeed if an instance with the same *Primary key* doesn't already exist, otherwise, the operation will fail.
 ### Save
 Let's say we made a mistake and we want to change some property of the instance we just `put` to the table.
 ```typescript
@@ -76,8 +75,8 @@ The new email address will now be saved to the original record because we had pu
 ```typescript
 const jackie = new User()
 
-jackie.username = "jackie87"
 jackie.id = 50
+jackie.username = "jackie87"
 jackie.email = "jackie@dynam0rx.com"
 jackie.info = {
     realname: "Jack",
@@ -87,11 +86,11 @@ jackie.role = ["USER"]
 
 await jackie.save()
 ```
-The difference between `put` and `save` is that the first puts an instance only if it doesn't already exists while the latter put an instance if it doesn't already exists, otherwise updated the existent instance with its properties.
+The difference between `put` and `save` is that the first puts an instance only if it doesn't already exists while the latter put an instance if it doesn't already exists or updates the existent instance with its properties.
 ### Get
-How do we retrieve data we don't have a record for but we (or someone else) put to the table earlier? Let's see how we can create a *dummy* instance by only declaring the *Primary key* on it, the retrieve the full instance using `get`
+How do we retrieve data we don't have a record for but we (or someone else) put to the table earlier? Let's see how we can create a *dummy* instance by only declaring the *Primary key* on it, then retrieve the full instance using `get`
 ```typescript
-const keyforJim = new User({ username: "jim119", id: 85 })
+const keyforJim = new User({ id: 85 })
 
 const jim = await keyforJim.get()
 ```
@@ -146,5 +145,96 @@ await keyforJim.update({
     }
 })
 ```
-## **API** - Static Methods
-TODO
+Will update `jim` only if its `email` field contains "dynam0rx.com" and its `info.age` field has a value greater than `18`. If one of the conditions is not met, the operation will fail.
+## User guide - Static Methods
+What we have seen before were called *Instance Methods* because they are executed on *instances* of the `User` class but at the top of this guide we have already met a `Static Method`
+### Initialize
+```typescript
+await User.init()
+```
+This method wasn't executed on an instance of `User` but on `User` itself. Just think of the `User` class as a representation of the table and the data type that will populate it: the above method will just create the table for the first time.
+### Drop
+Similarly, if some time in the future we'll need to delete the table entirely with all its content, we will do
+```typescript
+await User.drop()
+```
+### BatchPut
+Previously, we put a single instance to the table with `put` or `save` but it is possible to insert many instances at one time, together in a single operation
+```typescript
+const johnny = new User()
+const mark = new User()
+const andy = new User()
+
+johnny.username = "johnny33"
+johnny.id = 204
+johnny.info = { 
+    realname: "John",
+    age: 54
+}
+johnny.role: ["EDITOR"]
+
+mark.username = "mark93"
+...
+...
+
+andy.username = "andy44"
+...
+...
+
+await User.batchPut([johnny, mark, andy])
+```
+> **Careful:** BatchPut operations will overwrite any existing instances of the items we are putting. 
+### BatchGet
+Similarly, we can retrieve a collection of instances in one single operation
+```typescript
+const bobID = { id: 10 }
+const jimID = { id: 85 }
+const jackieID = { id: 50 }
+
+// Plain objects can be used in place of instances
+
+const collection = await User.batchGet([bobID, jimID, jackieID])
+```
+Variable `collection` will be an array containing the full instances for `bob`, `jim` and `jackie` we had put before. For example we can do
+```typescript
+collection[0].username = "bob1990"
+
+await collection[0].save()
+```
+And `bob` will have its *username* field updated in the database.
+### BatchDelete
+Of course, we can delete multiple items at a time
+```typescript
+await User.batchDelete([bobID, jimID, jackieID])
+
+// We used plain objects but instances can be used too
+```
+### Scan
+We can also retrieve *every* item present on the table
+```typescript
+await User.scan()
+```
+> **Attention:** On very big tables, this operation can be he quite *heavy*
+
+Or we can limit the number of items we'd like to retrieve
+```typescript
+await User.scan(100)
+
+// Will only retrieve the first 100 instances
+```
+### Query
+Let's put our `User` table aside and take a look at a different type of data structure
+```typescript
+@Schema({ tableName: "Articles" })
+class Article extends Dynam0RX {
+    @partitionKey
+    readonly slug: "slug" = "slug"
+    @sortKey
+    id: number
+    author: User
+    content: { title: string, body: string }
+}
+```
+Unlike before, here we have used `@sortKey` decorator too, which will create a full *Primary Key*. Plus, our partition key is already assigned with a `readonly` clause and a literal type assigned to it. This means that every instance in this table, will have a *partition key* of type `string` and with value `"slug"`. 
+>To learn more about DynamoDB *Key Schema* system, refer to the documentation.
+

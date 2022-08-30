@@ -1,8 +1,7 @@
-# Dynam0RX 
-## What it is
+# What it is
 Dynam0RX is an ORM client for *Amazon DynamoDB*. It provides an API which allows to define *schemas* and enables a clean and fast workflow based on *classes*. [DynamoDB API](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations_Amazon_DynamoDB.html) can be very tedious and writing many similar tasks or complicated conditional operations can quickly become painful: that is why this client was created. It is completely based on and bound to Typescript, providing type safety and preventing errors, accelerating the process of working with DynamoDB.
-## How does it work
-It makes use of Javascript classes and Typescript decorators to define strongly typed *Schemas* from which *Primary key* can be inferred thanks to Reflect Metadata. It is just as simple as defining a class with its properties and applying the appropriate decorators:
+# How does it work
+It makes use of Javascript classes and Typescript decorators to define strongly typed *Schemas* from which *Primary key* can be inferred. It is just as simple as defining a class with its properties and applying the appropriate decorators. This is all that's needed to start working with the schema.
 ```typescript
 @Schema()
 class User extends Dynam0RX {
@@ -16,11 +15,51 @@ class User extends Dynam0RX {
     }
     role: string[]
 }
-```
-This is all that's needed to start working with the schema. Now it is possible to perform all the operations supported by DynamoDB on `User`. 
 
-## User guide - Instance Methods
-Let's walk through all the main basic operations one would normally perform on this schema.
+const user = new User()
+
+user.id = 0
+user.username = "~soffyo"
+user.email = "soffyo@dynam0rx.com"
+user.info = {
+    realname = "Robert",
+    age: 31
+}
+role = ["FOUNDER","ROOT"]
+
+await User.init()
+await user.save()
+
+user.info.realname = "Bob"
+user.info.age = 32
+
+await user.save()
+
+await user.delete()
+await User.drop()
+``` 
+
+# User guide
+We'll walk through all the main basic operations one would normally perform on this schema. Exploring all the methods that this client makes available with some of their use cases. It is recommended - to get a full understanding of everything in this guide - to read it in the given order.
+
+* [Instance Methods](https://github.com/soffyo/Dynam0RX#instance-methods)
+  1. [Put](https://github.com/soffyo/Dynam0RX#put)
+  2. [Save](https://github.com/soffyo/Dynam0RX#save)
+  3. [Get](https://github.com/soffyo/Dynam0RX#get)
+  4. [Delete](https://github.com/soffyo/Dynam0RX#delete)
+     * [Conditional Delete](https://github.com/soffyo/Dynam0RX#conditional-delete)
+  5. [Update](https://github.com/soffyo/Dynam0RX#update)
+* [Static Methods](https://github.com/soffyo/Dynam0RX#static-methods)
+  1. [Initialize](https://github.com/soffyo/Dynam0RX#initialize-1)
+  2. [Drop](https://github.com/soffyo/Dynam0RX#drop)
+  3. [BatchPut](https://github.com/soffyo/Dynam0RX#batchput)
+  4. [BatchGet](https://github.com/soffyo/Dynam0RX#batchget)
+  5. [BatchDelete](https://github.com/soffyo/Dynam0RX#batchdelete)
+  6. [Query](https://github.com/soffyo/Dynam0RX#query)
+* [Conditions](https://github.com/soffyo/Dynam0RX#conditions)
+* [Importing](https://github.com/soffyo/Dynam0RX#importing)
+## Instance Methods
+We'll start this section with a method that is not an instance method. The reason of this choice is the need to give this guide a linear feeling, just like we were writing the code in the examples for real. Plus, we will use the `User` class from [before](https://github.com/soffyo/Dynam0RX#how-does-it-work)
 ### Initialize
 To create the Table we will just do
 ```typescript
@@ -146,7 +185,7 @@ await keyforJim.update({
 })
 ```
 Will update `jim` only if its `email` field contains "dynam0rx.com" and its `info.age` field has a value greater than `18`. If one of the conditions is not met, the operation will fail.
-## User guide - Static Methods
+## Static Methods
 What we have seen before were called *Instance Methods* because they are executed on *instances* of the `User` class but at the top of this guide we have already met a `Static Method`
 ### Initialize
 ```typescript
@@ -243,7 +282,7 @@ Plus, our partition key is already assigned with a `readonly` clause and a liter
 const articles = await Article.query({ slug: "slug", id: between(10,20) })
 ```
 As we already know, every element on the `Articles` table have the same *partition key* and a unique *sort key*. `query` method performs a search on elements with the same *partition key* based on the *sort key* value. In the example above, an array containing all the instances with an `id` field between `10` and `20` will be returned. Of course this is only one of the many ways that DynamoDB `Query` functionality can be used.
-## User Guide - Conditions
+## Conditions
 Earlier on this guide, we have seen the use of conditions on some methods in the form of functions. To use these, they need to be imported from the package's `/operators` path
 ```typescript
 import { equal } from "dynam0rx/operators"
@@ -268,11 +307,18 @@ await something.delete({
     }
 })
 ```
-It is possible to use multiple condition on a certain attribute
+It is possible to use multiple conditions together
 ```typescript
 {
     id: { ...attribute_type("number"), ...between(10,13) },
     name: { ...begins_with("Hor"), ...contains("j"), ...attribute_type("string") }
 }
 ```
+## Importing 
+Dynam0RX consists of three main pieces:
+- The Dynam0RX Class
+- The Decorators
+- The Conditional Operators
+
+
 

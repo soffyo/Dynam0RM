@@ -272,7 +272,7 @@ It is possible to use multiple condition on a certain attribute
 ```typescript
 {
     id: { ...attribute_type("number"), ...between(10,13) },
-    name: {...begin_with("Hor"), ...contains("j"), ...attribute_type("string") }
+    name: { ...begins_with("Hor"), ...contains("j"), ...attribute_type("string") }
 }
 ```
 

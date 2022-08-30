@@ -235,6 +235,12 @@ class Article extends Dynam0RX {
     content: { title: string, body: string }
 }
 ```
-Unlike before, here we have used `@sortKey` decorator too, which will create a full *Primary Key*. Plus, our partition key is already assigned with a `readonly` clause and a literal type assigned to it. This means that every instance in this table, will have a *partition key* of type `string` and with value `"slug"`. 
+Unlike before, here we have used `@sortKey` decorator too, which will create a full *Primary Key*. 
 >To learn more about DynamoDB *Key Schema* system, refer to the documentation.
+
+Plus, our partition key is already assigned with a `readonly` clause and a literal type. This means that every instance in this table will have a *partition key* of type `string` and with a value of `"slug"`. The reason we designed our schema like this is because we plan to use `query` method on this table to retrieve the data. Let's see how does it work
+```typescript
+const articles = await Article.query({ slug: "slug", id: between(10,20) })
+```
+As we already know, every element on the `Articles` table have the same *partition key* and a unique *sort key*. `Query` method performs a search on elements with the same *partition key* based on the *sort key* value. In the example above, an array containing all the instances with an `id` field between `10` and `20` will be returned 
 

@@ -51,7 +51,7 @@ As of today, there are some limitations due to the actual state of typescript de
 ### Partition Key and Sort Key `name:type` cannot be inferred
 Let's consider the following Schema
 ```typescript
-{
+class {
     @partitionKey
     artist: string
     @sortKey

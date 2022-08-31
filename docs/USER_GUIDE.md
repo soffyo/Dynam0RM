@@ -306,6 +306,8 @@ Decorators are a fundamental part of this client. They serve the purpose of defi
 #### Schema
 `@Schema()` is a *class decorator*. It **must** be used on top of a class to declare that the class itself defines a DynamoDB table. This decorator determines how the client will connect to the DynamoDB service and the DynamoDB connection configurations. 
 ```typescript
+import { Schema } from "dynam0rx/decorators"
+
 @Schema()
 class User extends Dynam0RX {
     // All the other props...
@@ -334,7 +336,7 @@ class User extends Dynam0RX {
 #### PartitionKey
 `partitionKey` decorator has to be applied on top of only one of a *Schema* decorated class's properties, defining its *partition key*. Using this decorator is **mandatory** as a *partition key* is necessary for constructing a DynamoDB *Primary key*
 ```typescript
-import { partitionKey } from "dynam0rx/decorators"
+import { Schema, partitionKey } from "dynam0rx/decorators"
 
 @Schema()
 class User extends Dynam0RX {
@@ -347,6 +349,8 @@ With this setup, instances from this table can be retrieved by just calling thei
 #### SortKey
 The sort key is an optional part of a DynamoDB *Primary key* so using this decorator is **optional** as well.
 ```typescript
+import { Schema, partitionKey, sortKey } from "dynam0rx/decorators"
+
 @Schema()
 class Article extends Dynam0RX {
     @partitionKey
@@ -389,9 +393,19 @@ It is possible to use multiple conditions together
     name: { ...begins_with("Hor"), ...contains("j"), ...attribute_type("string") }
 }
 ```
-#### Conditions Operators
-#### Query Operators
-#### Update Operators
+These are comparison logics that DynamoDB implements in its operations. Here is a list of all available operators. Their names are quite descriptive. To learn more about how they work, refer to the [Original documentation](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html)
+#### Conditional Operators
+* `equal()` (any)
+* `not_equal()` (any)
+* `greater()` (string|number)
+* `greater_equal()` (string|number)
+* `lesser()` (string|number)
+* `lesser_equal()` (string|number)
+* `between()` (number, number)
+* `_in()` (...any)
+* `contains()` (array|set|string)
+* `attribute_type()`
+* `attribute_exists()` (boolean)
 
 
 

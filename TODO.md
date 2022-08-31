@@ -8,3 +8,5 @@
 * Make Secondary Indexes decorators
 ## README
 * Include links to dynamodb docs
+* Complete *comparison operators* section
+* Complete *defining schema* section

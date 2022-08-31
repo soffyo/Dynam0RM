@@ -30,7 +30,7 @@ This guide will focus on Dynam0RX client workflow, covering all its methods and 
 ## Define a Schema
 As seen on the [main page](https://github.com/soffyo/Dynam0RX#how-does-it-work), we will be working on *Schemas*.
 ## Instance Methods
-When we talk about an *instance* in this guide, we refer to a possible iteration of the schema defined by the class. Instances have methods which can be used to work with them. In this guide we will refer to the `User` class from [before](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
+When we talk about an *instance* in this guide, we refer to a possible iteration of the schema defined by the class. Instances have methods which can be used to work with them. In this guide we will refer to the `User` class created in the [previous section](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
 >### *Create the table first*
 >To create the Table we will just do
 >```typescript
@@ -287,6 +287,8 @@ Dynam0RX consists of three main components that can be imported from the package
 * [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators)
 * [Conditional Operators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-operators)
 
+Now that we know how to use them, let's see how to import each one of them in our project.
+
 ### Dynam0RX Class
 As we've seen before, when we define a *Schema* we create a new class. For all the methods to be available on this *schema-class*, as seen in the above examples, we need our class to extend the main `Dynam0RX` class.
 ```typescript
@@ -330,7 +332,7 @@ class User extends Dynam0RX {
 > For info about DynamoDBClientConfig object, refer to the DynamoDB documentation
 
 #### PartitionKey
-This has to be applied on top of a *Schema* decorated class's property, defining its *partition key*. Using this decorator is **mandatory** as a *Primary key* must consist at least of a *partition key*
+`partitionKey` decorator has to be applied on top of only one of a *Schema* decorated class's properties, defining its *partition key*. Using this decorator is **mandatory** as a *partition key* is necessary for constructing a DynamoDB *Primary key*
 ```typescript
 import { partitionKey } from "dynam0rx/decorators"
 
@@ -341,9 +343,9 @@ class User extends Dynam0RX {
     // All the other props...
 }
 ```
-With this setup, instances from this tables can be retrieved by just calling their *id* filed.
+With this setup, instances from this table can be retrieved by just calling their `id` filed.
 #### SortKey
-The sort key is an optional part of a DynamoDB *Primary key*. Using this decorator is **optional** as a DynamoDB *Primary key* can consist of a *partition key* AND a *sort key*
+The sort key is an optional part of a DynamoDB *Primary key* so using this decorator is **optional** as well.
 ```typescript
 @Schema()
 class Article extends Dynam0RX {

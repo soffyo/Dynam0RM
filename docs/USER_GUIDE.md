@@ -3,11 +3,11 @@
 * [Introduction](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#introduction)
 * [Define a Schema](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
 * [Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#methods)
-  * [Init](ttps://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#init)
-  * [Instance Methods]()
+  * [Init](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#init)
+  * [Instance Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#instance-methods)
     * [Put](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#put)
     * [Save](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#save)
-  * [PrimaryKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#primary-key)
+  * [PrimaryKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#primarykey)
     * [Get](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#get)
     * [Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#delete)
       * [Conditional Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-delete)
@@ -88,7 +88,7 @@ The majority of our methods will be *static methods*
 await Song.init()
 ```
 This will just create the table for the first time (if it doesn't already exist). The table we just created will be named after the class identifier (`Song` in our case). If we wanted to give it a different name, we could have done it by passing it to the `@Schema` decorator. You can find more about it in the [Decorators paragraph](https://github.com/soffyo/Dynam0RX#decorators).
-`init` method can be called with a single optional parameter which is a configuration object for the table with the following properties:
+`init` method can be called with a single optional parameter which is a table configuration object with the following properties:
 * **throughput**: *[ProvisionedThroughput object](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html)*. If not specified, DynamoDB "PAY PER REQUEST" mode will be used for this table. 
 * **stream**: *[StreamViewType string](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html)*. If not specified, streams will be disabled for this table. 
 * **infrequent**: *boolean*. Defaults to *false* if not specified. If *true*, `STANDARD_INFREQUENT_ACCESS` mode is used.

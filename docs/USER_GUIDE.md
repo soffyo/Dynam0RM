@@ -140,7 +140,7 @@ thriller.reviews.good = 400
 
 await thriller.save()
 ```
-> *You can update nested properties even if they have not been defined yet. See [Nested Objects](https://github.com/soffyo/Dynam0RX#nested-objects) below.
+> *You can update nested properties even if they have not been defined yet. See [Nested Objects](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#nested-objects) below.
 > 
 The reviews will now be saved to the original instance on the table we put before. Otherwise, if we didn't put `thriller` before, `save` would have put a new instance including the *reviews.good* value we just added to it to the table. Another example
 ```typescript
@@ -176,15 +176,15 @@ Instance methods are methods that work on instances we already have record for b
 ```typescript
 const lmrKey = Song.primaryKey({ artist: "R.E.M.", title: "Losing My Religion" })
 ```
-Now `key` holds a reference to the instance relative to this *Primary key* on the table. Let's explore what methods are available on it
+Now, variable `lmrKey` holds a reference to the instance relative to this *Primary key* on the table. Let's explore what methods are available on it
 #### Get
 We most likely want to retrieve the full instance from the table
 ```typescript
-const losingMyReligion = await key.get()
+const losingMyReligion = await lmrKey.get()
 ```
-
+variable `losingMyReligion` is
 ```
-value of losingMyReligion {
+Song {
     artist: "R.E.M.",
     title: "Losing My Religion",
     year: 1991,

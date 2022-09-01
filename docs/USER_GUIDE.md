@@ -157,20 +157,20 @@ await billieJean.save()
 // Now "Billie Jean" is present on the table
 ```
 The difference between `put` and `save` is that both will put a new instance to the table if one with the same *Primary key* isn't found but while `put` will fail if an instance with the same *Primary Key* **is** found, `save` will instead update it with the given values.
-##### Nested objects
-When Updating nested objects, you can define *not yet existent* properties using dot notation
-```typescript
-billieJean.reviews.good = 334
-billieJean.reviews.bad = 57
-
-// Will be the same as
-
-billieJean.reviews = {
-    good: 334,
-    bad: 57
-}
-```
-Normally, Javascript won't let you do this because `reviews` is not yet defined on `billieJean` but here you can. This feature comes in handy when you don't want to define the whole object but be **careful**: this will allow you to bypass type checking on optionality of properties. Given the two examples above, they do the exact same thing but while the first is valid Typescript code, the second isn't. That's because `reviews` have `trending` as a non optional property which we didn't include. DynamoDB, on the other side, have no optional/required attributes, so use this feature according to your needs.
+> #### Nested objects
+> When Updating nested objects, you can define *not yet existent* properties using dot notation
+> ```typescript
+> billieJean.reviews.good = 334
+> billieJean.reviews.bad = 57
+>
+> // Will be the same as
+>
+> billieJean.reviews = {
+>    good: 334,
+>    bad: 57
+> }
+> ```
+> Normally, Javascript won't let you do this because `reviews` is not yet defined on `billieJean` but here you can. This feature comes in handy when you don't want to define the whole object but be **careful**: this will allow you to bypass type checking on optionality of properties. Given the two examples above, they do the exact same thing but while the first is valid Typescript code, the second isn't. That's because `reviews` have `trending` as a non optional property which we didn't include. DynamoDB, on the other side, have no optional/required attributes, so use this feature according to your needs.
 ### Primary Key 
 Instance methods are methods that work on instances we already have record for but how do we work on an instance from the table? As we know, to call something from a DynamoDB table we need a *Primary key*
 ```typescript

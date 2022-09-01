@@ -1,7 +1,17 @@
 import { PrimaryKeys, Condition, Response, Query, OmitMethods } from "./types"
 
+interface PrimaryKeyMethods<T> {
+    readonly attributes: OmitMethods<T>
+    get(): Promise<T>
+    delete(condition?: Condition<T>): Promise<Response<string>>
+    update(condition?: Condition<T>): Promise<Response<string>>
+}
+
 export class Dynam0RX<T = {}> {
     constructor(initialize?: Partial<OmitMethods<T>>) {}
+    static primaryKey<T extends Dynam0RX>(this: new (...args: any) => T, key: PrimaryKeys<T>): PrimaryKeyMethods<T> {
+       return {} as PrimaryKeyMethods<T>
+    }
     /**
      * @async **Initialize**
      * 
@@ -62,9 +72,7 @@ export class Dynam0RX<T = {}> {
      * @param keys Array of keys or instances.
      * @returns Array of retrieved instances.
      */
-    static async batchGet<T extends Dynam0RX>(this: new (...args: any) => T, keys: PrimaryKeys<OmitMethods<T>>[]|T[]): Promise<T[]> {
-        return undefined as unknown as T[]
-    }
+    static async batchGet<T extends Dynam0RX>(this: new (...args: any) => T, keys: PrimaryKeys<OmitMethods<T>>[]|T[]): Promise<T[]> { return [] as T[] }
     /**
      * @async **Scan**
      * 
@@ -72,9 +80,7 @@ export class Dynam0RX<T = {}> {
      * @param limit Limits the maximum amount of elements to retrieve.
      * @returns Array of instances
      */
-    static async scan<T extends Dynam0RX>(this: new (...args: any) => T, limit?: number): Promise<T[]> {
-        return undefined as unknown as T[]
-    }
+    static async scan<T extends Dynam0RX>(this: new (...args: any) => T, limit?: number): Promise<T[]> { return [] as T[] }
     /**
      * **Query**
      * 
@@ -84,12 +90,8 @@ export class Dynam0RX<T = {}> {
      * @param limit The maximum amount of items to retrieve
      * @returns Array of instances of the corresponding Item
      */
-    static async query<T extends Dynam0RX>(this: new (...args: any) => T, query: Query<T>, limit?: number): Promise<T[]> {
-        return undefined as unknown as T[]
-    }
-    static async update<T extends Dynam0RX>(this: new (...args: any) => T, keys: PrimaryKeys<OmitMethods<T>>|T, { update, condition }: { update: Partial<OmitMethods<T>>, condition?: Condition<T>}): Promise<T> {
-        return {} as T
-    }
+    static async query<T extends Dynam0RX>(this: new (...args: any) => T, query: Query<T>, limit?: number): Promise<T[]> { return [] as T[] }
+    static async update<T extends Dynam0RX>(this: new (...args: any) => T, keys: PrimaryKeys<OmitMethods<T>>|T, { update, condition }: { update: Partial<OmitMethods<T>>, condition?: Condition<T>}): Promise<T> { return {} as T }
     /**
      * **Put**
      * 
@@ -97,9 +99,7 @@ export class Dynam0RX<T = {}> {
      * The operation succedes only if an item with the same primary key doesn't already exist.
      * @returns Response object: `{ ok: boolean, response: string | Error["message"], error?: Error["name"] }`
      */
-    async put<T extends Dynam0RX>(this: T): Promise<Response<string>> { 
-        return {} as Response<string>
-    }
+    async put<T extends Dynam0RX>(this: T): Promise<Response<string>> { return {} as Response<string> }
     /**
      * **Save**
      * 
@@ -108,9 +108,7 @@ export class Dynam0RX<T = {}> {
      * If, instead, an item with the same primary key exists, it is updated with the current item properties.
      * @returns Response object: `{ ok: boolean, response: string | Error["message"], error?: Error["name"] }`
      */
-    async save<T extends Dynam0RX>(this: T): Promise<T> {
-        return undefined as unknown as T 
-    }
+    async save<T extends Dynam0RX>(this: T): Promise<T> { return {} as T }
     /**
      * **Delete**
      * 
@@ -118,20 +116,14 @@ export class Dynam0RX<T = {}> {
      * @param condition A condition object. Example: `{ prop1: equal(value1), prop2: contains("something") ... }`
      * @returns Response object: `{ ok: boolean, response: string | Error["message"], error?: Error["name"] }`
      */
-    async delete<T extends Dynam0RX>(this: T, condition?: Condition<T>): Promise<Response<string>> {
-        return {} as Response<string> 
-    }
+    async delete<T extends Dynam0RX>(this: T): Promise<Response<string>> { return {} as Response<string> }
     /**
      * **Get**
      * Retrieved the current object from the corresponding DynamoDB table.
      * @returns The matched obejct
      */
-    async get<T extends Dynam0RX>(this: T): Promise<T> {
-        return undefined as unknown as T 
-    }
-    async update<T extends Dynam0RX>(this: T, condition?: Condition<T>): Promise<Response<string>> {
-        return {} as Response<string> 
-    }
+    //async get<T extends Dynam0RX>(this: T): Promise<T> { return undefined as unknown as T }
+    //async update<T extends Dynam0RX>(this: T, condition?: Condition<T>): Promise<Response<string>> { return {} as Response<string> }
 }
 
 export * from "./decorators"

@@ -2,7 +2,20 @@ import "reflect-metadata"
 import { DynamoDBClient, DynamoDBClientConfig } from "@aws-sdk/client-dynamodb"
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
 import { initialize, drop, put, Delete, get, scan, update, save, query } from "../../methods"
-import { extractKeys, excludeKeys, response, construct } from "./functions"
+import { extractKeys, excludeKeys, response, construct, object } from "./functions"
+
+export interface Dynam0RXProperties {
+    _dynam0rx_client: DynamoDBDocumentClient
+    _dynam0rx_tableName: string
+    _dynam0rx_partitionKey: {
+        name: string,
+        type: string
+    }
+    _dynam0rx_sortKey: {
+        name: string,
+        type: string
+    }
+}
 
 /**
  * Decorator for Dynam0RX
@@ -13,18 +26,17 @@ export function Schema(input?: { tableName?: string, dynamoDBConfig?: DynamoDBCl
     return function<T extends { new (...args: any[]): {} }>(constructor: T) {
         Object.defineProperties(constructor, {
             _dynam0rx_tableName: {
-                value: input?.tableName ? input.tableName : constructor.name
+                value: input?.tableName ?? constructor.name
             },
             _dynam0rx_client: {
-                value: DynamoDBDocumentClient.from(new DynamoDBClient(input?.dynamoDBConfig!))
+                value: DynamoDBDocumentClient.from(new DynamoDBClient(input?.dynamoDBConfig ?? {}))
             }
         })
         return class Dynam0RXChild extends constructor {
-            [s:string|number|symbol]: any
             constructor(...args: any[]) {
                 super()
                 if (args.length > 1) {
-                    throw TypeError("over max arguments")
+                    throw TypeError("Only one argument allowed")
                 }
                 if (args[0]){
                     for (const [key,value] of Object.entries(args[0])) {
@@ -33,12 +45,31 @@ export function Schema(input?: { tableName?: string, dynamoDBConfig?: DynamoDBCl
                         })
                     }
                 }
-                return new Proxy(this, {
-                    set(target, name: string, receiver) {
-                        Object.defineProperty(target, name, { value: receiver, enumerable: true, writable: true })
-                        return true
+                return object(this)
+            }
+            static primaryKey(keys: any) {
+                for (const k of Object.keys(keys)) {
+                    //@ts-ignore-error
+                    const pk = constructor._dynam0rx_partitionKey.name, sk = constructor._dynam0rx_sortKey.name, table = constructor._dynam0rx_tableName
+                    if (k !== pk && k !==  sk) {
+                        throw Error(`Key "${k}" have been used as primary key but table "${table}"'s KeySchema has been setup with partition key: "${pk}"${sk && ', sort key: "' + sk+'"'}`)
                     }
-                })
+                }
+                return new class {
+                    attributes = object({})
+                    constructor() {
+                        Object.defineProperty(this, "attributes", { writable: false })
+                    }  
+                    async get() {
+                        return get(constructor, keys)
+                    } 
+                    async update(condition?: any) {
+                        return response(update<any>(constructor, keys, this.attributes, condition))
+                    } 
+                    async delete(condition?: any) {
+                        return response(Delete(constructor, keys, condition))
+                    }
+                }
             }
             static async init() {
                 return response(initialize(constructor))
@@ -70,22 +101,16 @@ export function Schema(input?: { tableName?: string, dynamoDBConfig?: DynamoDBCl
                 }
             }
             static async query(input: any, limit?: number) {
-                return construct(Dynam0RXChild, await query<any>(constructor, input, limit))
+                return construct(Dynam0RXChild, await query(constructor, input, limit))
             }
             async put() {
                 return response(put<any>(constructor, this))
             }
-            async get() {
-                return get(constructor, extractKeys(constructor, this))
-            } 
-            async delete(condition: any) {
-                return response(Delete(constructor, extractKeys(constructor, this), condition))
-            }
             async save() {
                 return response(save(constructor, extractKeys(constructor, this), excludeKeys(constructor, this)))
             }
-            async update(condition?: any) {
-                return response(update<any>(constructor, extractKeys(constructor, this), excludeKeys(constructor, this), condition))
+            async delete() {
+                return response(Delete(constructor, extractKeys(constructor, this)))
             }
         }
     }

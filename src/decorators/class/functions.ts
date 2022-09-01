@@ -39,6 +39,27 @@ export function excludeKeys(constructor: any, element: any): any {
     return object
 }
 
-export function construct(constructor: any, items: any): any {
-    return items?.map((item: any) => new constructor(item))
+export function construct<K, T extends { new (...args: any): K }>(constructor: T, items?: {[k:string]: any}[]): (K[]|undefined) {
+    return items?.map((item) => new constructor(item))
+}
+
+export function object(obj: {[k:string]: any}): typeof Proxy.prototype {
+    function dot(): typeof Proxy.prototype {
+        return new Proxy({}, {
+            get(target: any, key: any) {
+                if (!(key in target)) {
+                    return target[key] = dot()
+                }
+                return Reflect.get(target, key)
+            }
+        })
+    }
+    return new Proxy(obj, {
+        get(target, key: string) {
+            if (!(key in target)) {
+                return target[key] = dot()
+            }
+            return Reflect.get(target, key)
+        }
+    })
 }

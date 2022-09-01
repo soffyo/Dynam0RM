@@ -10,7 +10,8 @@
         "emitDecoratorMetadata": true,
         "resolveJsonModule": true,
         "strict": true,
-        "strictPropertyInitialization": false
+        "strictPropertyInitialization": false,
+        "strictNullChecks": false
     },
     "exclude": [
         "node_modules"

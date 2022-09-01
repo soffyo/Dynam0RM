@@ -47,12 +47,14 @@ export async function update<T extends { new (...args: any[]): {} }>(constructor
             }
             if (isObject(value)) {
                 Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
+                //UpdateExpressions.push(`#${key} = if_not_exists(#${key}, :${key})`) // <-- add this for cumulative update
                 iterate_updates(value, path)
             } else {
                 Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
+                //const $path = path.join(".#") // <-- add this for cumulative update
+                //UpdateExpressions.push(`#${$path} = :${key}`)// <-- add this for cumulative update
             }
-            const $path = path.join(".#")
-            UpdateExpressions.push(`#${$path} = :${key}`)
+            UpdateExpressions.push(`#${path.join(".#")} = :${key}`) // <-- remove this for cumulative update
         }
         const command = UpdateExpressions.length > 0 ? new UpdateCommand({
             TableName,

@@ -2,17 +2,17 @@
 
 * [Introduction](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#introduction)
 * [Define a Schema](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
-* [Instance Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#instance-methods)
-  * [Put](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#put)
-  * [Save](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#save)
-  * [Get](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#get)
-  * [Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#delete)
-     * [Conditional Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-delete)
-  * [Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#update)
-    * [Conditional Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-update)
-* [Static Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#static-methods)
-  * [Initialize](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#initialize)
-  * [Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#update-1)
+* [Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#methods)
+  * [Init](ttps://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#init)
+  * [Instance Methods]()
+    * [Put](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#put)
+    * [Save](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#save)
+  * [PrimaryKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#primary-key)
+    * [Get](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#get)
+    * [Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#delete)
+      * [Conditional Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-delete)
+    * [Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#update)
+      * [Conditional Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-update)
   * [Drop](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#drop)
   * [BatchPut](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchput)
   * [BatchGet](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchget)
@@ -26,140 +26,216 @@
     * [SortKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#sortkey)
   * [Conditions Operators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditions-operators)
 ## Introduction
-This guide will focus on Dynam0RX client workflow, covering all its methods and some of the use cases. Things that are strictly related to DynamoDB basic concepts will not be covered as the guide is meant for developers who already have an idea of what DynamoDB is. However, you will find useful links to the original documentation, pointing you in the right direction if you need to learn more about DynamoDB. 
-## Define a Schema
-As seen on the [main page](https://github.com/soffyo/Dynam0RX#how-does-it-work), we will be working on *Schemas*.
-## Instance Methods
-When we talk about an *instance* in this guide, we refer to a possible iteration of the schema defined by the class. Instances have methods which can be used to work with them. In this guide we will refer to the `User` class created in the [previous section](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
->### *Create the table first*
->To create the Table we will just do
->```typescript
->await User.init()
->```
-> This will create a table at DynamoDB named *User*.
-> More about this method will be covered in the [*Static Methods*](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#static-methods) part of the guide.
-### Put
-Now we can start creating instances and put them to the table, let's create a `User`
-```typescript
-const bob = new User()
+This guide will focus on Dynam0RX client workflow, covering all its methods and some of the use cases. Things that are strictly related to DynamoDB basic concepts will not be covered as the guide is meant for developers who already have an idea of what DynamoDB is. However, you will find useful links to the original documentation, pointing you in the right direction if you need to learn more about it. 
 
-bob.id = 10
-bob.username = "bob90"
-bob.email = "soffyo@dynam0rx.com"
-bob.info = {
-    realname: "Robert",
-    age: 32
+Look at this guide as a walkthrough, to be read from start to finish.
+## Define a Schema
+As seen on the [main page](https://github.com/soffyo/Dynam0RX#how-does-it-work), we will be working on *Schemas*. To define a schema, we need to create a new class
+```typescript
+class Song {
+    artist: string
+    title: string
+    year: number
+    genre: string[]
+    reviews: {
+        good: number
+        bad: number
+        trending: boolean
+    }
 }
-bob.role = ["ADMIN", "USER"]
+```
+As is, the class we just created isn't doing anything else than defining a schema type. This will be the structure of the data we will be putting on the table. But we need to tell Dynam0RX that this class refers to a table. To do this, we'll apply the [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators) 
+```typescript
+@Schema()
+class Song {
+    @partitionKey
+    artist: string
+    @sortKey
+    title: string
+    year: number
+    album: string
+    genre: string[]
+    reviews: {
+        good: number
+        bad: number
+        trending: boolean
+    }
+}
+```
+The decorators tell our client that class `Song` refers to a table that contains data with this shape. Plus, we define this table's *[Primary Key Schema](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_KeySchemaElement.html)* with `partitionKey` and `sortKey` decorators. Only one thing's left to do and we'll be good to go: we need to *extend* our class
+```typescript
+@Schema()
+class Song extends Dynam0RX {
+    @partitionKey
+    artist: string
+    @sortKey
+    title: string
+    year: number
+    album: string
+    genre: string[]
+    reviews: {
+        good: number
+        bad: number
+        trending: boolean
+    }
+}
+```
+We added `extends Dynam0RX` clause, which is needed to tell typescript that our class have a constructor and all the **methods** we're going to use in the following sections. From now on, we'll be working on this class we just defined and refer to it in all the following code examples.
+## Methods
+The majority of our methods will be *static methods*
+### Init
+```typescript
+await Song.init()
+```
+This will just create the table for the first time (if it doesn't already exist). The table we just created will be named after the class identifier (`Song` in our case). If we wanted to give it a different name, we could have done it by passing it to the `@Schema` decorator. You can find more about it in the [Decorators paragraph](https://github.com/soffyo/Dynam0RX#decorators).
+`init` method can be called with a single optional parameter which is a configuration object for the table with the following properties:
+* **throughput**: *[ProvisionedThroughput object](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html)*. If not specified, DynamoDB "PAY PER REQUEST" mode will be used for this table. 
+* **stream**: *[StreamViewType string](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html)*. If not specified, streams will be disabled for this table. 
+* **infrequent**: *boolean*. Defaults to *false* if not specified. If *true*, `STANDARD_INFREQUENT_ACCESS` mode is used.
+```typescript
+// Example init() with a full configuration object
+
+await Song.init({
+    stream: "NEW_AND_OLD_IMAGES",
+    infrequent: true,
+    throughput: {
+        ReadCapacityUnits: 10,
+        WriteCapacityUnits: 10
+    }
+})
+```
+> For info about tables configuration, refer to the [DynamoDB documentation](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.html).
+### Instance methods
+When we talk about an *instance* in this guide, we refer to a possible iteration of the schema defined by the class. Instances have methods which can be used to work with them.
+#### Put
+Now we can start creating instances and put them to the table, let's create a `Song`
+```typescript
+const thriller = new Song()
+
+thriller.artist = "Michael Jackson"
+thriller.title = "Thriller"
+thriller.year = 1982
+thriller.album = "Thriller"
+thriller.genre = ["Disco", "Pop"]
 
 // or we can simply define the properties directly while constructing the instance
 
-const bob = new User({
-    username: "bob90",
-    id: 10,
-    email: "bob@dynam0rx.com",
-    info: {
-        realname: "Robert",
-        age: 32
-    },
-    role: ["ADMIN", "USER"]
+const thriller = new Song({
+    artist: "Michael Jackson",
+    title: "Thriller",
+    year: 1982,
+    album: "Thriller"
+    genre: ["Disco", "Funk"]
 })
 ```
 When we're done, we can `put` it 
 ```typescript
-await bob.put()
+await thriller.put()
 ```
 This will only succeed if an instance with the same *Primary key* doesn't already exist, otherwise, the operation will fail.
-### Save
+#### Save
 Let's say after some other code, we need to change some property of the instance we just `put` to the table.
 ```typescript
-bob.email = "bob.new.email@dynam0rx.com"
+thriller.reviews.good = 400
 
-await bob.save()
+await thriller.save()
 ```
-The new email address will now be saved to the original instance on the tab;e we put before. Otherwise, if we didn't put `bob` before, `save` would have put a new instance to the table like in the following example
+> *You can update nested properties even if they have not been defined yet. See [Nested Objects](https://github.com/soffyo/Dynam0RX#nested-objects) below.
+> 
+The reviews will now be saved to the original instance on the table we put before. Otherwise, if we didn't put `thriller` before, `save` would have put a new instance including the *reviews.good* value we just added to it to the table. Another example
 ```typescript
-const jackie = new User()
+const billieJean = new Song()
 
-jackie.id = 50
-jackie.username = "jackie87"
-jackie.email = "jackie@dynam0rx.com"
-jackie.info = {
-    realname: "Jack",
-    age: 35
+billieJean.artist = "Michael Jackson"
+billieJean.title = "Billie Jean"
+billieJean.year = 1982
+billieJean.album = "Thriller"
+billieJean.genre = ["Disco", "Funk"]
+
+await billieJean.save()
+
+// Now "Billie Jean" is present on the table
+```
+The difference between `put` and `save` is that both will put a new instance to the table if one with the same *Primary key* isn't found but while `put` will fail if an instance with the same *Primary Key* **is** found, `save` will instead update it with the given values.
+##### Nested objects
+When Updating nested objects, you can define *not yet existent* properties using dot notation
+```typescript
+billieJean.reviews.good = 334
+billieJean.reviews.bad = 57
+
+// Will be the same as
+
+billieJean.reviews = {
+    good: 334,
+    bad: 57
 }
-jackie.role = ["USER"]
-
-await jackie.save()
-
-// Now "jackie" is present on the table
 ```
-The difference between `put` and `save` is that the first puts an instance only if one with the same *Primary key* isn't found on the table while the latter puts an instance to the table as well but if one instance with the same *Primary key* is found, it is then updated (not overwritten) with the new properties.
-### Get
-How do we retrieve an instance we don't have acces to in our code but that is present on the table? Let's see how we can create a *dummy instance* by only declaring the *Primary key* on it, then use it to retrieve the full instance with `get`
+Normally, Javascript won't let you do this because `reviews` is not yet defined on `billieJean` but here you can. This feature comes in handy when you don't want to define the whole object but be **careful**: this will allow you to bypass type checking on optionality of properties. Given the two examples above, they do the exact same thing but while the first is valid Typescript code, the second isn't. That's because `reviews` have `trending` as a non optional property which we didn't include. DynamoDB, on the other side, have no optional/required attributes, so use this feature according to your needs.
+### Primary Key 
+Instance methods are methods that work on instances we already have record for but how do we work on an instance from the table? As we know, to call something from a DynamoDB table we need a *Primary key*
 ```typescript
-const keyforJim = new User({ id: 85 })
-
-const jim = await keyforJim.get()
+const lmrKey = Song.primaryKey({ artist: "R.E.M.", title: "Losing My Religion" })
 ```
-Here, variable `jim` will contain all the properties relative to the *Primary Key* we defined (`id: 85`): a complete instance of `User` with all it's methods attached to it so we can work with them
+Now `key` holds a reference to the instance relative to this *Primary key* on the table. Let's explore what methods are available on it
+#### Get
+We most likely want to retrieve the full instance from the table
 ```typescript
-/*
-    Example value of the variable "jim":
+const losingMyReligion = await key.get()
+```
 
-    User {
-        username: "jim119"
-        id: 85
-        email: "jim@dynam0rx.com"
-        info: {
-            realname: "Jim",
-            age: 25
-        }
-        role: ["USER"]
+```
+value of losingMyReligion {
+    artist: "R.E.M.",
+    title: "Losing My Religion",
+    year: 1991,
+    album: "Out Of Time",
+    genre: ["Indie", "Alternative", "Pop"],
+    reviews: {
+        good: 1324,
+        bad: 435
     }
-*/
+} 
+```
+Here, `losingMyReligion` will contain the full instance including `put()` and `save()` methods. Let's add `"Rock"` to the `genre`s list
+```typescript
+losingMyReligion.genre = [...losingMyReligion.genre, "Rock"]
 
-jim.info.realname = "James"
-
-await jim.save()
+await losingMyReligion.save()
 ```
 ### Delete
 Deleting an instance is just as simple
 ```typescript
-await jim.delete()
+await lmrKey.delete()
 ```
-But what if we want to delete the instance only when certain conditions are met? Let's say we want to access a record that's already present on the table and delete it only if it has certain properties with certain value. We must `get` it first, then check for some conditions in our code and then `delete` it. This would result in *two* calls to the database, increasing the traffic volume. That's why DynamoDB supports conditions, allowing performing conditional checks and write operations in *one single* database call.
+But what if we want to delete the instance only if it has certain properties with certain values without `get`ing it first? DynamoDB supports conditions, allowing performing conditional checks and write operations in *one single* database call.
 #### Conditional Delete
 ```typescript
-await keyforJim.delete({
-    info: {
-        age: between(20,30)
-    },
-    role: contains("ADMIN")
-})
+const shout2000Key = Song.PrimaryKey({ artist: "Disturbed", title: "Shout 2000" })
 
-// Will fail because "jim"'s role field from before doesn't contain "ADMIN"
-// Notice how we used "keyforJim" which shows us that only a primary key is needed.
+await shout2000Key.delete({ year: not_equal(2000) })
+
+// Will only delete "Shout 2000" if the year is wrong (The song came out in 2000)
 ```
 A detailed description of possible conditions and how to use them can be found later in this guide, in the [Conditions section](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditions).
 ### Update
-We can use `update` to make changes on an existent instance only if it is already present on the table. If no matching instance is found, the operation will fail. Let's say that the following *Primary key*, `id: 300` doesn't exist on the table
+We can use `update` to make changes to an existent instance only if it is already present on the table. If no matching instance is found, the operation will fail. Let's say that we made a mistake when writing the *Primary key*
 ```typescript
-const mary = new User({ id: 300 }) // <-- This primary key is not present on the table
+const thrillerKey = new Song({ artist: "Michael Jckson", title: "Thriller" }) // <-- There is a typo!! We missed the a in "Jckson".
 
-mary.username = "mary003"
+thrillerKey.reviews.bad =  140
 
-await mary.update() // <-- This will fail, because "id: 300" wasn't already present and user "mary" will not be created.
+await thrillerKey.update() // <-- This will fail, preventing creating a new "Thriller" with wrong named artist "Michael Jckson".
 ```
+If we used `save()`, it would've created a new instance with wrong data while `update()` will fail for not finding a matching *Primary key*
 #### Conditional Update
-Conditional updates are also supported as they are one of the most useful feature of DynamoDB. Let's use `keyforJim` the *dummy instance* we created before
+Conditional updates are possible as well, being one very useful feature of DynamoDB. Let's use `shout2000Key` the *dummy instance* we created before
 ```typescript
-keyforJim.role = ["ADMIN"]
+thrillerKey.role = ["ADMIN"]
 
-await keyforJim.update({
-    email: contains("dynam0rx.com"),
-    info: {
-        age: greater(18)
+await thrillerKey.update({
+    reviews: {
+        good: greater_equal(1000)
+        bad: lesser(100)
     }
 })
 ```
@@ -168,27 +244,6 @@ Will update `jim` only if its `email` field contains "dynam0rx.com" and its `inf
 What we have seen before were called *Instance Methods* because they are executed on *instances* of the `User` class but at the top of this guide we have already met a *Static Method*. 
 
 Static methods can be tought as methods meant to work with the whole table rather than with a single instance. 
-### Initialize
-```typescript
-await User.init()
-```
-This method wasn't executed on an instance of `User` but on `User` itself. Just think of the `User` class as a representation of the table and the data type that will populate it: the above method will just create the table for the first time (if it doesn't already exist). It accepts a single optional parameter which is a configuration object for the table with the following properties:
-* **throughput**: *[ProvisionedThroughput object](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html)*. If not specified, DynamoDB "PAY PER REQUEST" mode will be used for this table. 
-* **stream**: *[StreamViewType string](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html)*. If not specified, streams will be disabled for this table. 
-* **infrequent**: *boolean*. Defaults to *false* if not specified. If *true*, `STANDARD_INFREQUENT_ACCESS` mode is used.
-```typescript
-const tableConfig = {
-    stream: "NEW_AND_OLD_IMAGES",
-    infrequent: true,
-    throughput: {
-        ReadCapacityUnits: 10,
-        WriteCapacityUnits: 10
-    }
-}
-
-await User.init(tableConfig)
-```
-> For info about tables configuration, refer to the DynamoDB documentation.
 ### Drop
 Similarly, if some time in the future we'll need to delete the table entirely with all its content, we will do
 ```typescript
@@ -393,19 +448,20 @@ It is possible to use multiple conditions together
     name: { ...begins_with("Hor"), ...contains("j"), ...attribute_type("string") }
 }
 ```
-These are comparison logics that DynamoDB implements in its operations. Here is a list of all available operators. Their names are quite descriptive. To learn more about how they work, refer to the [Original documentation](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html)
+These are comparison logics that DynamoDB implements in its conditional operations. To learn about what each one of them does, refer to the [Original documentation](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html). *Hint*: their names are quite descriptive!
 #### Conditional Operators
-* `equal()` (any)
-* `not_equal()` (any)
-* `greater()` (string|number)
-* `greater_equal()` (string|number)
-* `lesser()` (string|number)
-* `lesser_equal()` (string|number)
-* `between()` (number, number)
-* `_in()` (...any)
-* `contains()` (array|set|string)
+* `equal()` 
+* `not_equal()`
+* `greater()` 
+* `greater_equal()`
+* `lesser()` 
+* `lesser_equal()` 
+* `between()`
+* `_in()` 
+* `contains()`
 * `attribute_type()`
-* `attribute_exists()` (boolean)
+* `attribute_exists()` 
+* `size()`
 
 
 

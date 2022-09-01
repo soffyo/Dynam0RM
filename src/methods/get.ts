@@ -2,7 +2,7 @@ import { GetCommand, BatchGetCommand } from "@aws-sdk/lib-dynamodb"
 import { splitArray } from "../functions"
 import { PrimaryKeys } from "../types"
 
-export async function get<T extends { new (...args: any[]): {} }>(constructor: any, keys: PrimaryKeys<InstanceType<T>>|PrimaryKeys<InstanceType<T>>[]): Promise<Readonly<InstanceType<T>> | Readonly<InstanceType<T>>[]> {
+export async function get<T extends { new (...args: any[]): {} }>(constructor: T & {[k:string]: any}, keys: PrimaryKeys<T>|PrimaryKeys<T>[]): Promise<T|T[]> {
     const TableName = constructor._dynam0rx_tableName
     if (Array.isArray(keys)) {
         const Response = []

@@ -49,9 +49,9 @@ export async function Delete<T extends { new (...args: any[]): {} }>(constructor
         const command = new DeleteCommand({
             TableName,
             Key: keys,
-            ExpressionAttributeNames,
-            ExpressionAttributeValues,
-            ConditionExpression: Expressions.join(" AND ")
+            ExpressionAttributeNames: Object.keys(ExpressionAttributeNames).length > 0 ? ExpressionAttributeNames : undefined,
+            ExpressionAttributeValues: Object.keys(ExpressionAttributeValues).length > 0 ? ExpressionAttributeValues : undefined,
+            ConditionExpression: Expressions.length > 0 ? Expressions.join(" AND ") : undefined
         })
         await client.send(command)
         return "The item has been deleted"

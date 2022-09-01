@@ -3,7 +3,7 @@ import { handleConditions } from "../generators"
 import { isObject } from "../functions"
 import { Query } from "../types"
 
-export async function query<T>(constructor: any, query: any, limit?: number) {
+export async function query<T>(constructor: any, query: any, limit?: number): Promise<{[k:string]: any}[]|undefined> {
     const pk = constructor._dynam0rx_partitionKey.name
     const sk = constructor._dynam0rx_sortKey.name
     const TableName = constructor._dynam0rx_tableName

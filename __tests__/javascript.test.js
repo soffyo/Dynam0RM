@@ -1,6 +1,17 @@
-const sample = {}
-sample.a.b = "something"
-
 test("javascript", function() {
-    console.log(sample)
+    function dot() {
+        return new Proxy({}, {
+            get(target, key) {
+                if (!(key in target)) {
+                    return target[key] = dot()
+                }
+                return Reflect.get(target, key)
+            }
+        })
+    }
+    const proxy = dot()
+    proxy.name.v.s.d.g.h.e = "NAME A"
+    proxy.name.v.H = "DDD"
+
+    console.dir(proxy, { depth: null })
 })

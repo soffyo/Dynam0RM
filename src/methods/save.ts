@@ -8,7 +8,7 @@ export async function save<T extends { new (...args: any[]): {} }>(constructor: 
     void (function iterate(target, paths: string[] = []): any {
         const ExpressionAttributeValues = {}
         const ExpressionAttributeNames = {}
-        const expressions: string[] = []
+        const UpdateExpressions: string[] = []
         for (const [key, value] of Object.entries(target)) {
             Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
             let path = [key]
@@ -19,7 +19,7 @@ export async function save<T extends { new (...args: any[]): {} }>(constructor: 
                 }
             }
             const $path = path.join(".#")
-            expressions.push(`#${$path} = :${key}`)
+            UpdateExpressions.push(`#${$path} = :${key}`)
             if (isObject(value)) {
                 Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
                 iterate(value, path)
@@ -27,12 +27,12 @@ export async function save<T extends { new (...args: any[]): {} }>(constructor: 
                 Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
             }
         }
-        const command = expressions.length > 0 ? new UpdateCommand({
+        const command = UpdateExpressions.length > 0 ? new UpdateCommand({
             TableName,
             Key: keys,
             ExpressionAttributeNames,
             ExpressionAttributeValues,
-            UpdateExpression: "SET " + expressions.join(", ")
+            UpdateExpression: "SET " + UpdateExpressions.join(", ")
         }) : undefined
         return command && commands.push(command)
     })(update)

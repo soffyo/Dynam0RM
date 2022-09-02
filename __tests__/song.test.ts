@@ -54,10 +54,14 @@ test("Song", async function() {
     await shout.save()
 
     const thrillerK = Song.primaryKey({ artist: "Michael Jackson", title: "Thriller" })
-
-    thrillerK.attributes.album = "AZUNA" 
-
+ 
     await thrillerK.update()
+
+    const newThriller = await thrillerK.get()
+
+    newThriller.genre = [...newThriller.genre, "ASNANANA"]
+
+    await newThriller.save()
 
     console.log(await thrillerK.get())
     //console.dir(await Song.scan(), { depth: null })

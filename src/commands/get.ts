@@ -1,9 +1,11 @@
-import { GetCommand, BatchGetCommand } from "@aws-sdk/lib-dynamodb"
+import { GetCommand, BatchGetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
 import { splitArray } from "../functions"
 import { PrimaryKeys } from "../types"
+import * as symbol from "../definitions/symbols"
 
-export async function get<T extends { new (...args: any[]): {} }>(constructor: T & {[k:string]: any}, keys: PrimaryKeys<T>|PrimaryKeys<T>[]): Promise<T|T[]> {
-    const TableName = constructor._dynam0rx_tableName
+export async function get<T extends Record<string,any>>(constructor: T & {[k:string|symbol]: any}, keys: PrimaryKeys<T>|PrimaryKeys<T>[]): Promise<T|T[]> {
+    const client: DynamoDBDocumentClient = constructor[symbol.client]
+    const TableName = constructor[symbol.tableName]
     if (Array.isArray(keys)) {
         const Response = []
         const inputs = splitArray(keys, 25)
@@ -15,15 +17,15 @@ export async function get<T extends { new (...args: any[]): {} }>(constructor: T
                     }
                 }
             })
-            const { Responses } = await constructor._dynam0rx_client.send(command)
+            const { Responses } = await client.send(command)
             Response.push(Responses[TableName])
         }
-        return Response.flat()
+        return Response.flat() as T[]
     } else { 
         const command = new GetCommand({ 
             TableName, 
             Key: keys
         })
-        return (await constructor._dynam0rx_client.send(command)).Item
+        return (await client.send(command)).Item as T
     }
 }

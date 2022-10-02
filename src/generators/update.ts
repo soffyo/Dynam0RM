@@ -15,7 +15,7 @@ export function updateExpression(target: {[k:string]: any}) {
         switch (key) {
             case operators.add: container.add.push(`#${$name} :${$value}_dynam0rx_add_update`)
                 break
-            case operators.delet3: container.delete.push(`#${$name} :${$value}_dynam0rx_delete_update`)
+            case operators.Delete: container.delete.push(`#${$name} :${$value}_dynam0rx_delete_update`)
                 break
             case operators.append: container.update.push(`#${$name} = list_append(#${$name}, :${$value}_dynam0rx_append_update)`)
                 break

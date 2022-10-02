@@ -1,12 +1,12 @@
 import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
-import { symbols } from "../definitions"
+import * as symbol from "../definitions"
 import { splitArray, isObject } from "../functions"
 import { handleConditions } from "../generators"
 import { PrimaryKeys, Condition } from "../types"
 
 export async function Delete<T extends { new (...args: any[]): {} }>(constructor: any, keys: PrimaryKeys<T>|PrimaryKeys<T>[], condition?: Condition<T>) {
-    const TableName = constructor._dynam0rx_tableName
-    const client: DynamoDBDocumentClient = constructor._dynam0rx_client 
+    const TableName = constructor[symbol.tableName]
+    const client: DynamoDBDocumentClient = constructor[symbol.client]
     if (Array.isArray(keys)) {
         const inputs = splitArray(keys, 25)
         let response: any = null
@@ -41,7 +41,7 @@ export async function Delete<T extends { new (...args: any[]): {} }>(constructor
                     if (isObject(value)) {
                         iterate(value, path)
                     }
-                } else if (typeof key === "symbol" && symbols.includes(key)) {
+                } else if (typeof key === "symbol" && symbol.symbols.includes(key)) {
                     handleConditions(key, value, path, ExpressionAttributeValues, Expressions)
                 }
             }

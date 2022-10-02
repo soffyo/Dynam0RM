@@ -6,6 +6,14 @@ type Valueof<T> = T[keyof T]
 type Only<T,K extends keyof T> = Pick<T,K> & { [P in Exclude<keyof T,K>]?: never }
 export type OmitMethods<T> = { [K in keyof T as T[K] extends Function ? never : K]: T[K] }
 
+export interface tableConfig {
+    throughput?: {
+        read: number,
+        write: number
+    },
+    infrequent?: boolean
+}
+
 export interface Response<T> {
     ok: boolean
     response: T | Error["message"]

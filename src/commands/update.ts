@@ -2,17 +2,17 @@ import { UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
 import { isObject } from "../functions"
 import { handleConditions } from "../generators"
 import { PrimaryKeys, Condition } from "../types"
-import { symbols } from "../definitions"
+import * as symbol from "../definitions/symbols"
 
 export async function update<T extends { new (...args: any[]): {} }>(constructor: any, keys: PrimaryKeys<T>, update: Partial<T>, conditions?: Condition<T>) {
-    const TableName = constructor._dynam0rx_tableName
-    const client: DynamoDBDocumentClient = constructor._dynam0rx_client 
+    const TableName = constructor[symbol.tableName]
+    const client: DynamoDBDocumentClient = constructor[symbol.client]
     const ConditionAttributeNames = {}
     const ConditionAttributeValues = {}
     const ConditionExpressions: string[] = []
     const commands: UpdateCommand[] = []
     for (const key in keys) {
-        if (key === constructor._dynam0rx_partitionKey.name || key === constructor._dynam0rx_sortKey.name) {
+        if (key === constructor[symbol.primaryKeys][symbol.partitionKey] || key === constructor[symbol.primaryKeys][symbol.sortKey]) {
             Object.defineProperty(ConditionAttributeNames, `#${key}_dynam0rx_primaryKeys`, { value: key, enumerable: true })
             ConditionExpressions.push(`(attribute_exists(#${key}_dynam0rx_primaryKeys))`)
         }
@@ -27,7 +27,7 @@ export async function update<T extends { new (...args: any[]): {} }>(constructor
                 if (isObject(value)) {
                     iterate_conditions(value, path)
                 }
-            } else if (typeof key === "symbol" && symbols.includes(key)) {
+            } else if (typeof key === "symbol" && symbol.symbols.includes(key)) {
                 handleConditions(key, value, path, ConditionAttributeValues, ConditionExpressions)
             }
         }
@@ -47,14 +47,13 @@ export async function update<T extends { new (...args: any[]): {} }>(constructor
             }
             if (isObject(value)) {
                 Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
-                //UpdateExpressions.push(`#${key} = if_not_exists(#${key}, :${key})`) // <-- add this for cumulative update
+                UpdateExpressions.push(`#${key} = if_not_exists(#${key}, :${key})`) // <-- add this for cumulative update
                 iterate_updates(value, path)
             } else {
                 Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
-                //const $path = path.join(".#") // <-- add this for cumulative update
-                //UpdateExpressions.push(`#${$path} = :${key}`)// <-- add this for cumulative update
+                UpdateExpressions.push(`#${path.join(".#")} = :${key}`)// <-- add this for cumulative update
             }
-            UpdateExpressions.push(`#${path.join(".#")} = :${key}`) // <-- remove this for cumulative update
+            //UpdateExpressions.push(`#${path.join(".#")} = :${key}`) // <-- remove this for cumulative update
         }
         const command = UpdateExpressions.length > 0 ? new UpdateCommand({
             TableName,

@@ -1,4 +1,4 @@
-import { PrimaryKeys, Condition, Response, Query, OmitMethods } from "./types"
+import { PrimaryKeys, Condition, Response, Query, OmitMethods, tableConfig } from "./types"
 
 interface PrimaryKeyMethods<T> {
     readonly attributes: OmitMethods<T>
@@ -7,8 +7,8 @@ interface PrimaryKeyMethods<T> {
     update(condition?: Condition<T>): Promise<Response<string>>
 }
 
-export class Dynam0RX<T = {}> {
-    constructor(initialize?: Partial<OmitMethods<T>>) {}
+export abstract class Dynam0RX<T={}> {
+    constructor(initialize?: OmitMethods<T>) {}
     static primaryKey<T extends Dynam0RX>(this: new (...args: any) => T, key: PrimaryKeys<T>): PrimaryKeyMethods<T> {
        return {} as PrimaryKeyMethods<T>
     }
@@ -27,7 +27,7 @@ export class Dynam0RX<T = {}> {
      * const init: { ok: boolean, response: string | Error["message"], error?: Error["name"] }
      * ```
      */
-    static async init(): Promise<Response<string>> { 
+    static async init(config?: tableConfig): Promise<Response<string>> { 
         return {} as Response<string> 
     }
     /**
@@ -91,7 +91,7 @@ export class Dynam0RX<T = {}> {
      * @returns Array of instances of the corresponding Item
      */
     static async query<T extends Dynam0RX>(this: new (...args: any) => T, query: Query<T>, limit?: number): Promise<T[]> { return [] as T[] }
-    static async update<T extends Dynam0RX>(this: new (...args: any) => T, keys: PrimaryKeys<OmitMethods<T>>|T, { update, condition }: { update: Partial<OmitMethods<T>>, condition?: Condition<T>}): Promise<T> { return {} as T }
+    //static async update<T extends Dynam0RX>(this: new (...args: any) => T, keys: PrimaryKeys<OmitMethods<T>>|T, { update, condition }: { update: Partial<OmitMethods<T>>, condition?: Condition<T>}): Promise<T> { return {} as T }
     /**
      * **Put**
      * 
@@ -117,14 +117,7 @@ export class Dynam0RX<T = {}> {
      * @returns Response object: `{ ok: boolean, response: string | Error["message"], error?: Error["name"] }`
      */
     async delete<T extends Dynam0RX>(this: T): Promise<Response<string>> { return {} as Response<string> }
-    /**
-     * **Get**
-     * Retrieved the current object from the corresponding DynamoDB table.
-     * @returns The matched obejct
-     */
-    //async get<T extends Dynam0RX>(this: T): Promise<T> { return undefined as unknown as T }
-    //async update<T extends Dynam0RX>(this: T, condition?: Condition<T>): Promise<Response<string>> { return {} as Response<string> }
 }
 
 export * from "./decorators"
-export * as Dynam0RXDecorators from "./decorators"
+export * as Decorator from "./decorators"

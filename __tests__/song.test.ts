@@ -1,20 +1,29 @@
-import { Dynam0RX, Schema, partitionKey, sortKey } from "../src";
-import o, { greater_equal, lesser, not_equal, equal, lesser_equal, attribute_exists, begins_with } from "../src/operators";
+import { Dynam0RX, Schema, partitionKey, sortKey, localIndex, globalIndex } from "../src";
+import o from "../src/operators";
 import * as dynamoDBConfig from "./dbconfig.json"
+import * as symbol from "../src/definitions/symbols"
+
+const glob1 = new globalIndex("asnaeb")
+const glob2 = new globalIndex("senesi")
+
+const local = new localIndex<Song>({ attributes: ['year'], keys_only: true, name: 'asnaeb' })
 
 @Schema({ dynamoDBConfig })
-class Song extends Dynam0RX {
+class Song extends Dynam0RX<Song> {
     @partitionKey
     artist: string
     @sortKey
     title: string
     year: number
     album: string
+    @local.index
+    test_string?: string
+    test_number?: number
     genre: string[]
-    reviews: {
-        good: number
-        bad: number
-        trending: boolean
+    reviews? = {
+        good: 0,
+        bad: 0,
+        trending: false
     }
 }
 
@@ -28,8 +37,8 @@ test("Song", async function() {
     thriller.year = 1982
     thriller.album = "Thriller"
     thriller.genre = ["Disco", "Pop"]
-    thriller.reviews.bad = 0
-    thriller.reviews.good = 0
+    thriller.reviews.bad = 23
+    thriller.reviews.good = 800800800
 
     await thriller.save()
 
@@ -37,7 +46,7 @@ test("Song", async function() {
 
     billieJean.artist = "Michael Jackson"
     billieJean.title = "Billie Jean"
-    billieJean.year = 1982
+    billieJean.year = 1972
     billieJean.album = "Thriller"
     billieJean.genre = ["Disco", "Funk"]
 
@@ -48,23 +57,41 @@ test("Song", async function() {
         title: "Shout",
         year: 1985,
         album: "Songs from the Big Chair",
-        genre: ["Indie", "R&B", "Soul"]
+        genre: ["Indie", "R&B", "Soul"],
+        test_string: "b"
     })
 
     await shout.save()
 
-    const thrillerK = Song.primaryKey({ artist: "Michael Jackson", title: "Thriller" })
- 
-    await thrillerK.update()
+    const test = new Song({
+        artist: "Michael Jackson",
+        title: "Dummy Title",
+        album: "Dummy Album",
+        year: 1990,
+        genre: ["dummy"],
+        test_number: 0,
+        test_string: "a"
+    })
 
-    const newThriller = await thrillerK.get()
+    await test.save() 
 
-    newThriller.genre = [...newThriller.genre, "ASNANANA"]
+    const testy = new Song({
+        artist: "Michael Jackson",
+        title: "Dummy Body",
+        album: "Album",
+        year: 1990,
+        genre: ["dummy"],
+    })
 
-    await newThriller.save()
+    await testy.save() 
 
-    console.log(await thrillerK.get())
+    //const k = await Song.query({ artist: "Michael Jackson", year: o.greater(1972) })
+
+    //console.log(k)
+
+    console.log((await local.scan()))
+
     //console.dir(await Song.scan(), { depth: null })
 
-    await Song.drop()
+    await Song.drop()  
 })

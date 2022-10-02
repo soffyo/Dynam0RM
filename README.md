@@ -1,3 +1,5 @@
+![](https://img.shields.io/badge/under%20development-red)
+[![npm package](https://img.shields.io/badge/npm%20package-1.0.0-blue)](https://www.google.it)
 # What it is
 Dynam0RX is an ORM client for *Amazon DynamoDB*. It provides an API which allows to define *schemas* and enables a clean and fast workflow based on *classes*. [DynamoDB API](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations_Amazon_DynamoDB.html) can be very tedious and writing many similar tasks or complicated conditional operations can quickly become painful: that is why this client was created. It is completely based on and bound to Typescript, providing type safety and preventing errors, accelerating the process of working with DynamoDB.
 # How does it work

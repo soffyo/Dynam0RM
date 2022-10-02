@@ -1,12 +1,19 @@
 # TODO List
 ## Code
 * Add *ScanIndexForward* parameter to `query` method
-* Add *provisionedThroughput* to `init` method
-* Add *infrequent* parameter to `init` method
+* ~~Add *provisionedThroughput* to `init` method~~
+* ~~Add *infrequent* parameter to `init` method~~
 * Make *update* static method for updating the table
 * Investigate for a `@Stream` decorator or add *stream* parameter to `init` method
-* Make Secondary Indexes decorators
+* Secondary Indexes decorators
+  * ~~Make Local Secondary Index~~
+  * ~~Make Global Secondary Index~~
+  * ~~Update query method for global indexes~~
+  * Implement unique name generation if name is not provided for an index
+* Make *size* operator logic in ./generators/conditions.ts
+* Make ScanIndex method
+* Make Transaction methods
+* Check Paginator ?
+* Implement TimeToLive
 ## README
-* Include links to dynamodb docs
-* Complete *comparison operators* section
-* Complete *defining schema* section
+* Rewrite including new features

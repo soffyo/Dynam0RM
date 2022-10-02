@@ -1,17 +1,18 @@
 test("javascript", function() {
-    function dot() {
+    function dotNotationAssign() {
         return new Proxy({}, {
             get(target, key) {
                 if (!(key in target)) {
-                    return target[key] = dot()
+                    return target[key] = dotNotationAssign()
                 }
                 return Reflect.get(target, key)
             }
         })
-    }
-    const proxy = dot()
-    proxy.name.v.s.d.g.h.e = "NAME A"
-    proxy.name.v.H = "DDD"
-
-    console.dir(proxy, { depth: null })
+    } 
+    
+    const obj = dotNotationAssign()
+    
+    obj.a.b.c = "hello"
+    
+    console.log(obj)
 })

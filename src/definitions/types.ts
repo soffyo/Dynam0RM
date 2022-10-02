@@ -1,14 +1,29 @@
 export const attributeTypes = [
-    "string" as const, "S" as const,
-    "number" as const, "N" as const,
-    "binary" as const, "B" as const,
-    "boolean" as const, "BOOL" as const,
-    "array" as const, "L" as const,
-    "string set" as const, "SS" as const,
-    "number set" as const, "NS" as const,
-    "binary set" as const, "BS" as const,
-    "map" as const, "MAP" as const,
-    "null" as const, "NULL" as const
+    "string" as const,
+    "number" as const,
+    "binary" as const,
+    "boolean" as const,
+    "array" as const,
+    "string set" as const,
+    "number set" as const,
+    "binary set" as const,
+    "object" as const,
+    "null" as const
 ]
+
+export function formatAttributeType(type: AttributeTypes) {
+    switch (type) {
+        case "string": return "S"
+        case "number": return "N"
+        case "binary": return "B"
+        case "boolean": return "BOOL"
+        case "array": return "L"
+        case "string set": return "SS"
+        case "number set": return "NS"
+        case "binary set": return "BS"
+        case "object": return "MAP"
+        case "null": return "NULL"
+    }
+}
 
 export type AttributeTypes = typeof attributeTypes extends Array<infer T> ? T : never

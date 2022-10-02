@@ -1,16 +1,17 @@
 import { PutCommand, BatchWriteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
 import { splitArray } from "../functions"
 import { attributeNames } from "../generators"
+import * as symbol from "../definitions/symbols"
 
 export async function put<T extends { new (...args: any[]): {} }>(constructor: any, input: T|T[]): Promise<string> {
-    const pk = constructor._dynam0rx_partitionKey
-    const sk = constructor._dynam0rx_sortKey
-    const TableName = constructor._dynam0rx_tableName
-    const client: DynamoDBDocumentClient = constructor._dynam0rx_client
-    const names = [pk.name, sk?.name]
-    let ConditionExpression = `attribute_not_exists (#${pk.name})`
+    const pk = constructor[symbol.primaryKeys][symbol.partitionKey]
+    const sk = constructor[symbol.primaryKeys][symbol.sortKey]
+    const TableName = constructor[symbol.tableName]
+    const client: DynamoDBDocumentClient = constructor[symbol.client]
+    const names = [pk, sk]
+    let ConditionExpression = `attribute_not_exists (#${pk})`
     if (sk) {
-        ConditionExpression += ` AND attribute_not_exists (#${sk.name})`
+        ConditionExpression += ` AND attribute_not_exists (#${sk})`
     }
     if (Array.isArray(input)) {
         input = input.map(i => ({ ...i }))
@@ -26,7 +27,7 @@ export async function put<T extends { new (...args: any[]): {} }>(constructor: a
             })
             response = await client.send(command)
         }
-        if (response && response.UnprocessedItems) {
+        if (response) {
             if (Object.keys(response.UnprocessedItems).length > 0) {
                 return "some items unprocessed"
             } else {

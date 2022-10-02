@@ -1,9 +1,10 @@
 import { UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
 import { isObject } from "../functions"
+import * as symbol from "../definitions/symbols"
 
 export async function save<T extends { new (...args: any[]): {} }>(constructor: any, keys: any, update: Record<string,any>) {
-    const TableName = constructor._dynam0rx_tableName
-    const client: DynamoDBDocumentClient = constructor._dynam0rx_client 
+    const TableName = constructor[symbol.tableName]
+    const client: DynamoDBDocumentClient = constructor[symbol.client]
     const commands: UpdateCommand[] = []
     void (function iterate(target, paths: string[] = []): any {
         const ExpressionAttributeValues = {}
@@ -36,12 +37,8 @@ export async function save<T extends { new (...args: any[]): {} }>(constructor: 
         }) : undefined
         return command && commands.push(command)
     })(update)
-    try {
-        for (const command of commands.reverse()) {
-            await client.send(command)
-        }
-        return "update successful"
-    } catch (error: any) {
-        return "update unsuccessful"
+    for (const command of commands.reverse()) {
+        await client.send(command)
     }
+    return "operation successful"
 }

@@ -42,7 +42,7 @@
 
 // Update operators
     export const add = Symbol.for("add")
-    export const delet3 = Symbol.for("delete")
+    export const Delete = Symbol.for("delete")
     export const append = Symbol.for("append")
     export const prepend = Symbol.for("prepend")
     export const remove = Symbol.for("remove")
@@ -51,12 +51,22 @@
 
     export const updateSymbols = [
         add, 
-        delet3,
+        Delete,
         append,
         increment,
         decrement
     ]
 
-    export type UpdateSymbols = typeof add | typeof delet3 | typeof append | typeof remove
+    export type UpdateSymbols = typeof add | typeof Delete | typeof append | typeof remove
 
     export const symbols = [...querySymbols, ...conditionSymbols, ...updateSymbols]
+
+    export const keySchema = Symbol.for("keySchema")
+    export const attributeDefinitions = Symbol.for("attributeDefinitions")
+    export const partitionKey = Symbol.for("partitionKey")
+    export const sortKey = Symbol.for("sortKey")
+    export const primaryKeys = Symbol.for("keys")
+    export const localIndexes = Symbol.for("localIndexes")
+    export const globalIndexes = Symbol.for("globalIndexes")
+    export const tableName = Symbol.for("tableName")
+    export const client = Symbol.for("client")

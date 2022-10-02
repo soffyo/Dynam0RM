@@ -29,16 +29,16 @@ export function equal<T>(value: T) {
 export function not_equal<T>(value: T) {
     return { [symbols.notEqual]: value }
 }
-export function greater<T>(value: T) {
+export function greater<T extends (string|number)>(value: T) {
     return { [symbols.greater]: value }
 }
-export function lesser<T>(value: T) {
+export function lesser<T extends (string|number)>(value: T) {
     return { [symbols.lesser]: value }
 }
-export function greater_equal<T>(value: T) {
+export function greater_equal<T extends (string|number)>(value: T) {
     return { [symbols.greaterEqual]: value }
 }
-export function lesser_equal<T>(value: T) {
+export function lesser_equal<T extends (string|number)>(value: T) {
     return { [symbols.lesserEqual]: value }
 }
 // Update symbols
@@ -52,7 +52,7 @@ export function decrement(value: number) {
     return { [symbols.decrement]: value } as unknown as number
 }
 export function delete_<T>(...values: T[]) {
-    return { [symbols.delet3]: new Set(values) } as unknown as Set<T>
+    return { [symbols.Delete]: new Set(values) } as unknown as Set<T>
 }
 export function append<T>(...values: T[]) {
     return { [symbols.append]: values } as unknown as T[]
@@ -64,4 +64,4 @@ export function remove() {
     return symbols.remove as any
 }
 
-export default exports
+export default { equal, greater, greater_equal, lesser, lesser_equal, begins_with, between }

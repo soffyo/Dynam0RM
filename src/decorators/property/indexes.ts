@@ -15,7 +15,7 @@ type PropertyDecorator = (prototype: any, key: string) => void
 
 interface IndexProps<T> {
     name?: string, 
-    attributes?: [OnlyKeys<T>, (OnlyKeys<T>)?] | 'keys-only'
+    attributes?: (OnlyKeys<T>)[] | 'keys-only'
 }
 
 interface GlobalIndexProps<T> extends IndexProps<T> {
@@ -86,10 +86,10 @@ class SecondaryIndex<T> {
 }
 
 export class localSecondaryIndex<T> extends SecondaryIndex<T> {
-    public readonly sortKey: PropertyDecorator
+    //public readonly sortKey: PropertyDecorator
     constructor(props?: IndexProps<T>) {
         super('local', props)
-        this.sortKey = this[makeDecorator]((prototype, key) => {
+        const decorator = this[makeDecorator]((prototype, key) => {
             const keySchema = mainPM(prototype.constructor).get(symbol.keySchema)
             this[secondaryIndex]?.KeySchema?.push(
                 {
@@ -103,10 +103,14 @@ export class localSecondaryIndex<T> extends SecondaryIndex<T> {
             )
         })
         Object.defineProperty(this, 'sortKey', {
+            value: decorator,
             enumerable: true,
             writable: false,
             configurable: false
         })
+    }
+    sortKey(): PropertyDecorator {
+        throw Error('"sortKey" cannot be called directly. This function mut be used as a property decorator')
     }
 }
 

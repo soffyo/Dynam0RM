@@ -4,7 +4,8 @@ import * as dynamoDBConfig from './dbconfig.json'
 import { Dynam0RX } from 'src/mixin';
 import * as symbol from '../src/definitions/symbols'
 
-const myLocalIndex = new localSecondaryIndex()
+const myLocalIndex = new localSecondaryIndex<_table1>({ name: 'myindex' })
+const myGlobalIndex = new globalSecondaryIndex<_table1>()
 
 @Schema({ dynamoDBConfig })
 class _table1 extends Dynam0RX {
@@ -37,11 +38,13 @@ test('Song', async function() {
     await _table2.init()
     await _table3.init()
 
+    console.log(myLocalIndex.sortKey())
+
     const _1 = _table1.make({ a1: 'one', b1: 1 })
     const _2 = _table2.make({ a2: 'two', b2: 2 })
     const _3 = _table3.make({ a3: 'three', b3: 3 })
 
-    await _1.save()
+    void (await _1.save()).content.b1
     await _2.save()
     await _3.save()
 

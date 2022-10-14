@@ -94,7 +94,7 @@ export function dynam0RXMixin<T extends { new (...args: any[]): {} }>(superclass
             return new Put<this>(superclass, this).exec()
         }
         async save() {
-            return new Save<this>(superclass, extractKeys(superclass, this), excludeKeys(superclass, this)).exec()
+            return new Save<OmitMethods<this>>(superclass, extractKeys(superclass, this), excludeKeys(superclass, this)).exec()
         }
         async delete() {
             return new Delete<this>(superclass, extractKeys(superclass, this)).exec()

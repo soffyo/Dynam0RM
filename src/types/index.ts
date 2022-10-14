@@ -1,12 +1,12 @@
-import { AttributeTypes } from "../definitions"
+import { AttributeTypes } from "src/definitions/attributes"
 import * as symbols from "../definitions/symbols"
 
 // Utility types
-type Valueof<T> = T[keyof T]
-type Only<T,K extends keyof T> = Pick<T,K> & { [P in Exclude<keyof T,K>]?: never }
+export type Valueof<T> = T[keyof T]
+export type Only<T,K extends keyof T> = Pick<T,K> & { [P in Exclude<keyof T,K>]?: never }
 export type OmitMethods<T> = { [K in keyof T as T[K] extends Function ? never : K]: T[K] }
 
-export interface tableConfig {
+export interface TableConfig {
     throughput?: {
         read: number,
         write: number
@@ -14,18 +14,12 @@ export interface tableConfig {
     infrequent?: boolean
 }
 
-export interface Response<T> {
-    ok: boolean
-    response: T | Error["message"]
-    error?: Error["name"]
-}
-
 type RawOperator = "="|"<>"|"<"|"<="|">"|">="
 export type Size = Valueof<{[K in RawOperator]: {[k in K]-?: number} & {[k in Exclude<RawOperator, K>]+?: never}}>
 
 /** Picks two properties of type (string|number). One is required (partition key) while the other one is optional (sort key).
 This approach is temporary until design-time decorator types are implemented: https://github.com/microsoft/TypeScript/issues/48885 */
-export type PrimaryKeys<T extends Record<string,any>> = Valueof<{
+export type PrimaryKeys<T> = Valueof<{
     [K in keyof OmitMethods<T>]-?: T[K] extends (string|number) ? Only<T,K> | Valueof<{
             [L in Exclude<keyof T,K>]+?: T[L] extends (string|number) ? Only<T,K|L> : never
     }> : never
@@ -66,6 +60,12 @@ export type Query<T> = Valueof<{
         { [_ in SK]+?: QueryObject<T[SK]> } &
         { [_ in Exclude<keyof T,(PK|SK)>]+?: never } 
     }> 
+}>
+
+export type QueryWithFilters<T> = Valueof<{ 
+    [PK in keyof T as T[PK] extends (string|number) ? PK : never]:
+        { [X in PK]-?: T[PK] } & 
+        { [X in Exclude<keyof T, PK>]+?: QueryObject<T[X]> } 
 }>
 
 export type Update<T> = {

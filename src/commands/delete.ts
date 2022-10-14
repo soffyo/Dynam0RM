@@ -1,60 +1,55 @@
-import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
-import * as symbol from "../definitions"
-import { splitArray, isObject } from "../functions"
-import { handleConditions } from "../generators"
-import { PrimaryKeys, Condition } from "../types"
+import { DeleteCommand, DeleteCommandInput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb"
+import { SimpleCommand } from "./command"
+import { isObject } from "src/utils"
+import { handleConditions } from "src/generators"
+import { PrimaryKeys, Condition } from "src/types"
+import * as symbol from "src/definitions/symbols"
 
-export async function Delete<T extends { new (...args: any[]): {} }>(constructor: any, keys: PrimaryKeys<T>|PrimaryKeys<T>[], condition?: Condition<T>) {
-    const TableName = constructor[symbol.tableName]
-    const client: DynamoDBDocumentClient = constructor[symbol.client]
-    if (Array.isArray(keys)) {
-        const inputs = splitArray(keys, 25)
-        let response: any = null
-        for (const item of inputs) {
-            const command = new BatchWriteCommand({
-                RequestItems: {
-                    [TableName]: item.map(Key => ({
-                        DeleteRequest: { Key }
-                    }))
-                }
-            })
-            response = await client.send(command)
-        }
-        if (response && response.UnprocessedItems) {
-            if (Object.keys(response.UnprocessedItems).length > 0) {
-                return "Some items may have not been deleted."
-            } else {
-                return `All ${keys.length} items have been deleted.`
-            }
-        } 
-    } else {
+export class Delete<T> extends SimpleCommand<T, DeleteCommandInput, DeleteCommandOutput> {
+    protected command: DeleteCommand
+    public constructor(target: object, Key: PrimaryKeys<T>, condition?: Condition<T>) {
+        super(target)
         const ExpressionAttributeNames = {}
         const ExpressionAttributeValues = {}
         const Expressions: string[] = []
-        condition && void (function iterate(target: {[k:string|symbol]: any}, paths: string[]) {
-            for (const key of Reflect.ownKeys(target)) {
-                const value = target[key]
-                let path = paths
-                if (typeof key === "string") {
-                    Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-                    path = paths.length > 0 ? [...paths, key] : [key]
-                    if (isObject(value)) {
-                        iterate(value, path)
+        if (condition) {
+            void (function iterate(target: {[k:string|symbol]: any}, paths: string[]) {
+                for (const key of Reflect.ownKeys(target)) {
+                    const value = target[key]
+                    let path = paths
+                    if (typeof key === 'string') {
+                        Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
+                        path = paths.length > 0 ? [...paths, key] : [key]
+                        if (isObject(value)) {
+                            iterate(value, path)
+                        }
+                    } else if (typeof key === 'symbol' && symbol.symbols.includes(key)) {
+                        handleConditions(key, value, path, ExpressionAttributeValues, Expressions)
                     }
-                } else if (typeof key === "symbol" && symbol.symbols.includes(key)) {
-                    handleConditions(key, value, path, ExpressionAttributeValues, Expressions)
                 }
-            }
-        })(condition, [])
-        const command = new DeleteCommand({
-            TableName,
-            Key: keys,
+            })(condition, [])
+        }
+        this.command = new DeleteCommand({
+            Key,
+            TableName: this.tableName,
+            ReturnValues: 'ALL_OLD',
             ExpressionAttributeNames: Object.keys(ExpressionAttributeNames).length > 0 ? ExpressionAttributeNames : undefined,
             ExpressionAttributeValues: Object.keys(ExpressionAttributeValues).length > 0 ? ExpressionAttributeValues : undefined,
-            ConditionExpression: Expressions.length > 0 ? Expressions.join(" AND ") : undefined
+            ConditionExpression: Expressions.length > 0 ? Expressions.join(' AND ') : undefined
         })
-        await client.send(command)
-        return "The item has been deleted"
     }
-    throw Error("no input")
+    public async exec() {
+        try {
+            const { Attributes } = await this.send()
+            this.response.content = Attributes as T
+            this.response.message = 'Item deleted successfully'
+            this.response.ok = true
+        } catch (error: any) {
+            this.response.ok = false
+            this.response.message = error.message
+            this.response.error = error
+        } finally {
+            return this.response
+        }
+    }
 }

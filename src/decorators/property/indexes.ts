@@ -1,88 +1,145 @@
-import { LocalSecondaryIndex, GlobalSecondaryIndex } from '@aws-sdk/client-dynamodb'
-import * as symbol from '../../definitions/symbols'
-import { addToArraySymbol, addToObjectSymbol, validateType, attributeDefinition } from './functions'
-import { scan } from '../../commands'
+import 'reflect-metadata'
+import { GlobalSecondaryIndex } from '@aws-sdk/client-dynamodb'
+import { attributeDefinition, addToPrivateMapArray } from './functions'
+import { validatePrimaryKey } from 'src/validation'
+import { Response } from 'src/commands/command'
+import { Scan } from 'src/commands'
+import { Valueof } from 'src/types'
+import { mainPM } from 'src/private'
+import * as symbol from 'src/definitions/symbols'
 
-export class localIndex<T> {
-    public readonly name: string
-    public readonly index: (prototype: any, key: string) => void
-    constructor(props?: { name: string, keys_only?: boolean, attributes?: (keyof T)[] }) {
-        this.index = (prototype: any, key: string) => {
-            const type = validateType(Reflect.getMetadata('design:type', prototype, key))
-            const IndexName = props?.name ?? `${key}_localIndex`
-            const localSecondaryIndex: LocalSecondaryIndex = {
-                IndexName,
-                KeySchema: [
-                    {
-                        AttributeName: prototype.constructor[symbol.primaryKeys][symbol.partitionKey],
-                        KeyType: 'HASH'
-                    },
-                    {
-                        AttributeName: key,
-                        KeyType: 'RANGE'
-                    }
-                ],
-                Projection: {
-                    NonKeyAttributes: props?.attributes as string[] ?? [],
-                    ProjectionType: props?.attributes ? 'INCLUDE' : props?.keys_only ? 'KEYS_ONLY' : 'ALL' 
-                }
-            }
-            addToObjectSymbol(prototype.constructor, symbol.primaryKeys, [IndexName, key])
-            addToArraySymbol(prototype.constructor, symbol.attributeDefinitions, attributeDefinition(key, type))
-            addToArraySymbol(prototype.constructor, symbol.localIndexes, localSecondaryIndex)
-            Object.defineProperty(this, 'name', { value: IndexName, enumerable: true })
-            this.scan = async function(limit?: number) {
-                return scan(prototype.constructor, limit, IndexName)
+
+type OnlyKeys<T> = Valueof<{ [K in keyof T]: T[K] extends Function ? never : K }>
+
+type PropertyDecorator = (prototype: any, key: string) => void
+
+interface IndexProps<T> {
+    name?: string, 
+    attributes?: [OnlyKeys<T>, (OnlyKeys<T>)?] | 'keys-only'
+}
+
+interface GlobalIndexProps<T> extends IndexProps<T> {
+    throughput?: {
+        read: number
+        write: number
+    }
+}
+
+const secondaryIndex = Symbol()
+const makeDecorator = Symbol()
+
+class SecondaryIndex<T> {
+    public name: string
+    protected readonly [makeDecorator]: (fn: PropertyDecorator) => PropertyDecorator
+    protected readonly [secondaryIndex]: GlobalSecondaryIndex = { 
+        KeySchema: [], 
+        IndexName: undefined, 
+        Projection: undefined, 
+        ProvisionedThroughput: undefined 
+    }
+    constructor(kind: 'local'|'global', props?: GlobalIndexProps<T>) {
+        if (props?.name) {
+            this.name = props.name
+        } else {
+            this.name = `Dynam0RX.${kind}Index`
+        }
+        if (kind === 'global' && props?.throughput) {
+            this[secondaryIndex].ProvisionedThroughput = {
+                ReadCapacityUnits: props.throughput.read,
+                WriteCapacityUnits: props.throughput.write
             }
         }
+        this[secondaryIndex].Projection = (function() {
+            let NonKeyAttributes: string[] = []
+            let ProjectionType: 'ALL'|'INCLUDE'|'KEYS_ONLY' = 'ALL'
+            if (props?.attributes) {
+                if (Array.isArray(props.attributes) && props.attributes.length > 0) {
+                    ProjectionType = 'INCLUDE'
+                    NonKeyAttributes = props.attributes as string[]
+                } else if (props.attributes === 'keys-only') {
+                    ProjectionType = 'KEYS_ONLY'
+                }
+            }
+            return { ProjectionType, NonKeyAttributes }
+        })()
+        this[makeDecorator] = (fn) => (prototype, key) => {
+            const type = validatePrimaryKey(Reflect.getMetadata('design:type', prototype, key))
+            const symbolIndex = kind === 'local' ? symbol.localIndexes :  symbol.globalIndexes
+            fn(prototype, key)
+            if (!props?.name) { 
+                this.name += `.${key}`
+            }
+            this[secondaryIndex].IndexName = this.name
+            addToPrivateMapArray(mainPM, prototype.constructor, symbol.attributeDefinitions, attributeDefinition(key, type))
+            addToPrivateMapArray(mainPM, prototype.constructor, symbolIndex, this[secondaryIndex])
+            try {
+                Object.defineProperty(this, 'scan', {
+                    value: async (Limit?: number) => new Scan({ Limit, IndexName: this.name }).exec(), 
+                    enumerable: true 
+                })
+            } catch {}
+        }
     }
-    async scan(limit?: number): Promise<T[]> { 
+    public async scan(limit?: number): Promise<Response<T[]>> { 
         throw Error('This index has not yet been assigned to any attribute.')
     }
 }
 
-export class globalIndex {
-    public readonly partitionKey: (prototype: any, key: string) => void
-    public readonly sortKey: (prototype: any, key: string) => void
-    constructor(name?: string) {
-        const globalIndex: GlobalSecondaryIndex = {
-            IndexName: name ?? 'randomName', //<-- implement unique name generation if name is not provided
-            KeySchema: [],
-            Projection: {
-                NonKeyAttributes: [],
-                ProjectionType: 'ALL'
-            }
-        }
-        function addToGlobalIndex(prototype: any, AttributeName: string, KeyType: 'HASH'|'RANGE') {
-            const globalIndexes = prototype.constructor[symbol.globalIndexes]
-            const index = globalIndexes && globalIndexes.indexOf(globalIndex)
-            if (index > -1) {
-                if (KeyType === 'HASH') {
-                    globalIndexes[index].KeySchema.splice(0, 0, { AttributeName, KeyType })
-                } else {
-                    globalIndexes[index].KeySchema.splice(1, 0, { AttributeName, KeyType })
+export class localSecondaryIndex<T> extends SecondaryIndex<T> {
+    public readonly sortKey: PropertyDecorator
+    constructor(props?: IndexProps<T>) {
+        super('local', props)
+        this.sortKey = this[makeDecorator]((prototype, key) => {
+            const keySchema = mainPM(prototype.constructor).get(symbol.keySchema)
+            this[secondaryIndex]?.KeySchema?.push(
+                {
+                    AttributeName: (keySchema && keySchema[0]?.AttributeName) ?? undefined,
+                    KeyType: 'HASH'
+                },
+                {
+                    AttributeName: key,
+                    KeyType: 'RANGE'
                 }
-            } else {
-                globalIndex.KeySchema.push({ AttributeName, KeyType })
-                addToArraySymbol(prototype.constructor, symbol.globalIndexes, globalIndex)
-            }
-        }
-        Object.defineProperty(this, 'partitionKey', {
-            value: function(prototype: any, key: string) {
-                const type = validateType(Reflect.getMetadata('design:type', prototype, key))
-                addToArraySymbol(prototype.constructor, symbol.attributeDefinitions, attributeDefinition(key, type))
-                addToGlobalIndex(prototype, key, 'HASH')
-            }
+            )
         })
         Object.defineProperty(this, 'sortKey', {
-            value: function(prototype: any, key: string) {
-                const type = validateType(Reflect.getMetadata('design:type', prototype, key))
-                addToArraySymbol(prototype.constructor, symbol.attributeDefinitions, attributeDefinition(key, type))
-                addToGlobalIndex(prototype, key, 'RANGE')
-            }
+            enumerable: true,
+            writable: false,
+            configurable: false
         })
-        Object.defineProperty(this, 'name', {
-            value: name
+    }
+}
+
+export class globalSecondaryIndex<T> extends SecondaryIndex<T> {
+    public readonly partitionKey: PropertyDecorator
+    public readonly sortKey: PropertyDecorator
+    constructor(props?: GlobalIndexProps<T>) {
+        super('global', props)
+        this.partitionKey = this[makeDecorator]((prototype, key) => {
+            this[secondaryIndex]?.KeySchema?.splice(0, 0, {
+                AttributeName: key,
+                KeyType: 'HASH'
+            })
+            if (!props?.name) this.name += '.pk'
+        })
+        this.sortKey = this[makeDecorator]((prototype, key) => {
+            this[secondaryIndex]?.KeySchema?.splice(1, 0, {
+                AttributeName: key,
+                KeyType: 'RANGE'
+            })
+            if (!props?.name) this.name += '.sk'
+        })
+        Object.defineProperties(this, {
+            partitionKey: {
+                enumerable: true,
+                writable: false,
+                configurable: false
+            },
+            sortKey: {
+                enumerable: true,
+                writable: false,
+                configurable: false
+            }
         })
     }
 }

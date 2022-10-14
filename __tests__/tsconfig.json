@@ -1,9 +1,10 @@
 {
+    "extends": "../tsconfig",
     "compilerOptions": {
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
+        "strictNullChecks": false,
         "resolveJsonModule": true,
-        "target": "ES2015",
-        "moduleResolution": "Node"
-    }
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": ["/**/*"]
 }

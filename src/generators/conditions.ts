@@ -1,4 +1,4 @@
-import * as symbol from "../definitions"
+import * as symbol from "src/definitions/symbols"
 
 export function handleConditions(key: symbol, value: any, path: string[], attributeValues: {[k:string]: any}, conditionExpressions: string[]) {
     const path_name = path.join(".#")

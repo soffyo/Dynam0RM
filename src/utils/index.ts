@@ -1,3 +1,4 @@
+/** Splits an array into arrays of lenght defined by @param: `maxLength`  */
 export function splitArray<T>(array: T[], maxLength: number): T[][] {
     const main: T[][] = []
     void (function split(array: T[]): void {
@@ -29,7 +30,7 @@ export function propsToArray(obj: Record<string,any>): string[] {
 }
 
 export function isObject(obj: any): boolean {
-    if (typeof obj === "object" && obj !== null &&  !(obj instanceof Array) && !(obj instanceof Set)) {
+    if (typeof obj === 'object' && obj !== null && !(obj instanceof Array) && !(obj instanceof Set)) {
         return true
     }
     return false

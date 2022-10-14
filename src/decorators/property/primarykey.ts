@@ -1,27 +1,40 @@
-import "reflect-metadata"
-import { KeySchemaElement } from "@aws-sdk/client-dynamodb"
-import { addToArraySymbol, addToObjectSymbol, validateType, attributeDefinition } from "./functions"
-import * as symbol from "../../definitions/symbols"
+import 'reflect-metadata'
+import { KeySchemaElement, LocalSecondaryIndex } from '@aws-sdk/client-dynamodb'
+import { attributeDefinition, addToPrivateMapArray } from './functions'
+import { validatePrimaryKey } from 'src/validation'
+import { mainPM } from 'src/private'
+import * as symbol from 'src/definitions/symbols'
 
-function addAttribute(prototype: any, key: string, keySchemaElement: KeySchemaElement, name: string|symbol) {
-    const type = validateType(Reflect.getMetadata("design:type", prototype, key))
-    addToArraySymbol(prototype.constructor, symbol.keySchema, keySchemaElement)
-    addToArraySymbol(prototype.constructor, symbol.attributeDefinitions, attributeDefinition(key, type))
-    addToObjectSymbol(prototype.constructor, symbol.primaryKeys, [name, key])
+function addAttribute(prototype: any, key: string, keySchemaElement: KeySchemaElement, name: string|symbol, index?: number) {
+    const type = validatePrimaryKey(Reflect.getMetadata('design:type', prototype, key))
+    addToPrivateMapArray(mainPM, prototype.constructor, symbol.keySchema, keySchemaElement, index)
+    addToPrivateMapArray(mainPM, prototype.constructor, symbol.attributeDefinitions, attributeDefinition(key, type))
 }
 
 export function partitionKey(prototype: any, key: string) {
+    const localIndexes = mainPM(prototype.constructor).get<LocalSecondaryIndex[]>(symbol.localIndexes)
     const keySchemaElement: KeySchemaElement = {
         AttributeName: key,
-        KeyType: "HASH"
+        KeyType: 'HASH'
     }
-    addAttribute(prototype, key, keySchemaElement, symbol.partitionKey)
+    Object.defineProperty(prototype.constructor, 'partitionKey', {
+        value: key,
+        enumerable: true
+    })
+    if (localIndexes) for (const index of localIndexes) {
+        if (index.KeySchema) index.KeySchema[0].AttributeName = key
+    }
+    addAttribute(prototype, key, keySchemaElement, symbol.partitionKey, 0)
 }
 
 export function sortKey(prototype: any, key: string) {
     const keySchemaElement: KeySchemaElement = {
         AttributeName: key,
-        KeyType: "RANGE"
+        KeyType: 'RANGE'
     }
-    addAttribute(prototype, key, keySchemaElement, symbol.sortKey)
+    Object.defineProperty(prototype.constructor, 'sortKey', {
+        value: key,
+        enumerable: true
+    })
+    addAttribute(prototype, key, keySchemaElement, symbol.sortKey, 1)
 }

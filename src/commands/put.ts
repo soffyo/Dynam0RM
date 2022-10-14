@@ -1,49 +1,35 @@
-import { PutCommand, BatchWriteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
-import { splitArray } from "../functions"
-import { attributeNames } from "../generators"
-import * as symbol from "../definitions/symbols"
+import { PutCommand, PutCommandInput, PutCommandOutput } from "@aws-sdk/lib-dynamodb"
+import { attributeNames } from "src/generators"
+import { SimpleCommand } from "src/commands/command"
 
-export async function put<T extends { new (...args: any[]): {} }>(constructor: any, input: T|T[]): Promise<string> {
-    const pk = constructor[symbol.primaryKeys][symbol.partitionKey]
-    const sk = constructor[symbol.primaryKeys][symbol.sortKey]
-    const TableName = constructor[symbol.tableName]
-    const client: DynamoDBDocumentClient = constructor[symbol.client]
-    const names = [pk, sk]
-    let ConditionExpression = `attribute_not_exists (#${pk})`
-    if (sk) {
-        ConditionExpression += ` AND attribute_not_exists (#${sk})`
-    }
-    if (Array.isArray(input)) {
-        input = input.map(i => ({ ...i }))
-        const inputs = splitArray(input, 25)
-        let response: any = null
-        for (const item of inputs) {
-            const command = new BatchWriteCommand({ 
-                RequestItems: {
-                    [TableName]: item.map((Item: T) => ({ 
-                        PutRequest: { Item } 
-                    }))
-                }
-            })
-            response = await client.send(command)
+export class Put<T extends {[k:string]: any}> extends SimpleCommand<T, PutCommandInput, PutCommandOutput> {
+    protected readonly command: PutCommand
+    public constructor(target: object, Item: T) {
+        super(target)
+        const PK = this.keySchema[0]?.AttributeName
+        const SK = this.keySchema[1]?.AttributeName
+        let ConditionExpression = `attribute_not_exists (#${PK})`
+        if (SK) {
+            ConditionExpression += ` AND attribute_not_exists (#${SK})`
         }
-        if (response) {
-            if (Object.keys(response.UnprocessedItems).length > 0) {
-                return "some items unprocessed"
-            } else {
-                return `${input.length} items added to the database`
-            }
-        } 
-    } else {
-        input = { ...input }
-        const command = new PutCommand({
-            TableName,
-            ExpressionAttributeNames: attributeNames(names),
+        this.command = new PutCommand({
+            TableName: this.tableName,
+            ExpressionAttributeNames: attributeNames([PK, SK]),
             ConditionExpression,
-            Item: input
+            Item: { ...Item }
         })
-        await client.send(command)  
-        return "item has been put"
     }
-    throw Error("no item passed")  
+    public async exec() {
+        try {
+            await this.send()
+            this.response.message = 'Item has been put successfully'
+            this.response.ok = true
+        } catch (error: any) {
+            this.response.ok = false
+            this.response.message = error.message
+            this.response.error = error.name
+        } finally {
+            return this.response
+        }
+    }
 }

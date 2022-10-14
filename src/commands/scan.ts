@@ -1,19 +1,36 @@
-import { ScanCommand, ScanCommandOutput, paginateScan, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
-import * as symbol from "../definitions/symbols"
+import { ScanCommand, ScanCommandInput, ScanCommandOutput } from "@aws-sdk/lib-dynamodb"
+import { Dynam0RX } from "src/mixin"
+import { SimpleCommand } from "./command"
 
-export async function scan<T>(constructor: any, limit?: number, indexName?: string): Promise<T[]> {
-    const TableName = constructor[symbol.tableName]
-    const Limit = limit ? limit : undefined
-    const client: DynamoDBDocumentClient = constructor[symbol.client]
-    const command = new ScanCommand({
-        TableName,
-        Limit,
-        IndexName: indexName ?? undefined
-    })
-    const paginator = paginateScan({ client }, command.input)
-    const result: any = []
-    for await (const page of paginator) {
-        result.push(...page.Items)
+interface ScanConfig<T> {
+    Limit?: number,
+    Attributes?: (keyof T)[]
+    IndexName?: string
+}
+
+export class Scan<T> extends SimpleCommand<T, ScanCommandInput, ScanCommandOutput, T[]> {
+    protected readonly command: ScanCommand
+    public constructor(target: object, config?: ScanConfig<T>) {
+        super(target)
+        this.command = new ScanCommand({
+            TableName: this.tableName,
+            Limit: config?.Limit,
+            IndexName: config?.IndexName,
+            ProjectionExpression: config?.Attributes?.join(', '),
+        })
     }
-    return result
+    public async exec() {
+        try {
+            const { Items } = await this.send()
+            this.response.content = Items?.map(item => Dynam0RX.make(item)) as unknown as T[]
+            this.response.message = 'Table scanned successfully.'
+            this.response.ok = true
+        } catch (error: any) {
+            this.response.ok = false
+            this.response.message = error.message
+            this.response.error = error
+        } finally {
+            return this.response
+        }
+    }
 }

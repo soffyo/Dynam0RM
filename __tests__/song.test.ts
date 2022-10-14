@@ -1,97 +1,55 @@
-import { Dynam0RX, Schema, partitionKey, sortKey, localIndex, globalIndex } from "../src";
-import o from "../src/operators";
-import * as dynamoDBConfig from "./dbconfig.json"
-import * as symbol from "../src/definitions/symbols"
+import { Schema, partitionKey, sortKey, localSecondaryIndex, globalSecondaryIndex } from '../src/decorators';
+import op from '../src/operators';
+import * as dynamoDBConfig from './dbconfig.json'
+import { Dynam0RX } from 'src/mixin';
+import * as symbol from '../src/definitions/symbols'
 
-const glob1 = new globalIndex("asnaeb")
-const glob2 = new globalIndex("senesi")
-
-const local = new localIndex<Song>({ attributes: ['year'], keys_only: true, name: 'asnaeb' })
+const myLocalIndex = new localSecondaryIndex()
 
 @Schema({ dynamoDBConfig })
-class Song extends Dynam0RX<Song> {
+class _table1 extends Dynam0RX {
     @partitionKey
-    artist: string
+    a1: string
     @sortKey
-    title: string
-    year: number
-    album: string
-    @local.index
-    test_string?: string
-    test_number?: number
-    genre: string[]
-    reviews? = {
-        good: 0,
-        bad: 0,
-        trending: false
-    }
+    b1: number
 }
 
-test("Song", async function() {
-    await Song.init()
-    
-    const thriller = new Song()
+@Schema({ dynamoDBConfig })
+class _table2 extends Dynam0RX {
+    @partitionKey
+    a2: string
+    @sortKey
+    b2: number
+    c2?: string
+}
 
-    thriller.artist = "Michael Jackson"
-    thriller.title = "Thriller"
-    thriller.year = 1982
-    thriller.album = "Thriller"
-    thriller.genre = ["Disco", "Pop"]
-    thriller.reviews.bad = 23
-    thriller.reviews.good = 800800800
+@Schema({ dynamoDBConfig })
+class _table3 extends Dynam0RX {
+    @partitionKey
+    a3: string
+    @sortKey
+    b3: number
+    c3?: { a: number, b: { c: number }}
+}
 
-    await thriller.save()
+test('Song', async function() {
+    await _table1.init()
+    await _table2.init()
+    await _table3.init()
 
-    const billieJean = new Song()
+    const _1 = _table1.make({ a1: 'one', b1: 1 })
+    const _2 = _table2.make({ a2: 'two', b2: 2 })
+    const _3 = _table3.make({ a3: 'three', b3: 3 })
 
-    billieJean.artist = "Michael Jackson"
-    billieJean.title = "Billie Jean"
-    billieJean.year = 1972
-    billieJean.album = "Thriller"
-    billieJean.genre = ["Disco", "Funk"]
+    await _1.save()
+    await _2.save()
+    await _3.save()
 
-    await billieJean.save()
+    console.dir(await _table1.scan(), {depth: null})
+    console.log(await _table2.scan())
+    console.log(await _table3.scan())
 
-    const shout = new Song({
-        artist: "Tears for Fears",
-        title: "Shout",
-        year: 1985,
-        album: "Songs from the Big Chair",
-        genre: ["Indie", "R&B", "Soul"],
-        test_string: "b"
-    })
-
-    await shout.save()
-
-    const test = new Song({
-        artist: "Michael Jackson",
-        title: "Dummy Title",
-        album: "Dummy Album",
-        year: 1990,
-        genre: ["dummy"],
-        test_number: 0,
-        test_string: "a"
-    })
-
-    await test.save() 
-
-    const testy = new Song({
-        artist: "Michael Jackson",
-        title: "Dummy Body",
-        album: "Album",
-        year: 1990,
-        genre: ["dummy"],
-    })
-
-    await testy.save() 
-
-    //const k = await Song.query({ artist: "Michael Jackson", year: o.greater(1972) })
-
-    //console.log(k)
-
-    console.log((await local.scan()))
-
-    //console.dir(await Song.scan(), { depth: null })
-
-    await Song.drop()  
+    await _table1.drop()
+    await _table2.drop()
+    await _table3.drop()
 })

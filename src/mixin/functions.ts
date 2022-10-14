@@ -1,27 +1,13 @@
-import { Response } from "../../types"
-import { validate } from "./validation"
-import * as symbol from "../../definitions/symbols"
-
-export async function response<T>(response: Promise<T>): Promise<Response<T>> {
-    try {
-        return {
-            ok: true, 
-            response: await response
-        }
-    } catch (error: any) {
-        return {
-            ok: false,
-            response: error.message,
-            error: error.name
-        }
-    }
-}
+import { KeySchemaElement } from "@aws-sdk/client-dynamodb"
+import { validateType } from "src/validation"
+import { mainPM } from "src/private"
+import * as symbol from "src/definitions/symbols"
 
 export function extractKeys(constructor: any, element: any): any {
     let keys = {}
         for (const k in element) {
-            if (k === constructor[symbol.primaryKeys][symbol.partitionKey] || 
-                k === constructor[symbol.primaryKeys][symbol.sortKey]) {
+            if (k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[0]?.AttributeName  || 
+                k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[1]?.AttributeName) {
                 keys = {
                     ...keys,
                     [k]: element[k]
@@ -34,7 +20,8 @@ export function extractKeys(constructor: any, element: any): any {
 export function excludeKeys(constructor: any, element: any): any {
     const object = { ...element }
     for (const k in object) {
-        if (k === constructor[symbol.primaryKeys][symbol.partitionKey] || k === constructor[symbol.primaryKeys][symbol.sortKey]) {
+        if (k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[0]?.AttributeName || 
+            k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[1]?.AttributeName) {
             delete object[k]
         }
     }
@@ -54,7 +41,7 @@ export function proxy(obj: {[k:string]: any}): typeof Proxy.prototype {
             return Reflect.get(target, key)
         },
         set(target, key: string, receiver) {
-            return Reflect.set(target, key, validate(receiver))
+            return Reflect.set(target, key, validateType(key, receiver))
         }
     })
 }

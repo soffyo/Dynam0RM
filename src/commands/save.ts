@@ -1,44 +1,64 @@
-import { UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
-import { isObject } from "../functions"
-import * as symbol from "../definitions/symbols"
+import { UpdateCommand, UpdateCommandInput, UpdateCommandOutput } from "@aws-sdk/lib-dynamodb"
+import { isObject } from "src/utils"
+import { BatchCommand } from "./command"
 
-export async function save<T extends { new (...args: any[]): {} }>(constructor: any, keys: any, update: Record<string,any>) {
-    const TableName = constructor[symbol.tableName]
-    const client: DynamoDBDocumentClient = constructor[symbol.client]
-    const commands: UpdateCommand[] = []
-    void (function iterate(target, paths: string[] = []): any {
-        const ExpressionAttributeValues = {}
-        const ExpressionAttributeNames = {}
-        const UpdateExpressions: string[] = []
-        for (const [key, value] of Object.entries(target)) {
-            Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-            let path = [key]
-            if (paths.length > 0 ) {
-                path = [...paths, key]
-                for (const k of paths) {
-                    Object.defineProperty(ExpressionAttributeNames, `#${k}`, { value: k, enumerable: true })
+export class Save<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommandOutput> {
+    protected readonly commands: UpdateCommand[] = []
+    constructor(target: object, Key: {[k:string]: any}, update: {[k:string]: any}) {
+        super(target)
+        const iterate = (object: {[k:string]: any}, paths: string[] = []) => {
+            let ExpressionAttributeValues: {[k:string]: any} | undefined
+            let ExpressionAttributeNames: {[k:string]: any} | undefined
+            let UpdateExpressions: string[] | undefined
+            if (Object.keys(object).length > 0) {
+                ExpressionAttributeNames = {}
+                ExpressionAttributeValues = {}
+                UpdateExpressions = []
+                for (const [key, value] of Object.entries(object)) {
+                    Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
+                    let path = [key]
+                    if (paths.length > 0 ) {
+                        path = [...paths, key]
+                        for (const k of paths) {
+                            Object.defineProperty(ExpressionAttributeNames, `#${k}`, { value: k, enumerable: true })
+                        }
+                    }
+                    const $path = path.join(".#")
+                    UpdateExpressions.push(`#${$path} = :${key}`)
+                    if (isObject(value)) {
+                        Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
+                        iterate(value, path)
+                    } else {
+                        Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
+                    }
                 }
             }
-            const $path = path.join(".#")
-            UpdateExpressions.push(`#${$path} = :${key}`)
-            if (isObject(value)) {
-                Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
-                iterate(value, path)
-            } else {
-                Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
-            }
+            const command = new UpdateCommand({
+                TableName: this.tableName,
+                Key,
+                ExpressionAttributeNames,
+                ExpressionAttributeValues,
+                UpdateExpression: UpdateExpressions && 'SET ' + UpdateExpressions.join(", "),
+                ReturnValues: 'ALL_NEW'
+            }) 
+            return command && this.commands.push(command)
         }
-        const command = UpdateExpressions.length > 0 ? new UpdateCommand({
-            TableName,
-            Key: keys,
-            ExpressionAttributeNames,
-            ExpressionAttributeValues,
-            UpdateExpression: "SET " + UpdateExpressions.join(", ")
-        }) : undefined
-        return command && commands.push(command)
-    })(update)
-    for (const command of commands.reverse()) {
-        await client.send(command)
+        iterate(update)
+        this.commands.reverse()
     }
-    return "operation successful"
+    public async exec() {
+        try {
+            const responses = await this.send()
+            const { Attributes } = responses[responses.length - 1]
+            if (Attributes) this.response.content = Attributes as T
+            this.response.message = 'Item saved succesfully.'
+            this.response.ok = true    
+        } catch (error: any) {
+            this.response.ok = false
+            this.response.message = error.message
+            this.response.error = error.name
+        } finally {
+            return this.response
+        }
+    }
 }

@@ -1,6 +1,6 @@
-import { Size } from "../types"
-import { AttributeTypes } from "../definitions"
-import * as symbols from "../definitions/symbols"
+import { Size } from "src/types"
+import { AttributeTypes } from "src/definitions/attributes"
+import * as symbols from "src/definitions/symbols"
 
 export function attribute_exists(value: boolean) {
     return { [symbols.attributeExists]: value }
@@ -14,7 +14,7 @@ export function contains<T>(value: T) {
 export function begins_with(value: string) {
     return { [symbols.beginsWith]: value }
 }
-export function _in<T>(...values: T[]) {
+export function In<T>(...values: T[]) {
     return { [symbols.into]: values }
 }
 export function between<T>(start: T, end: T): { [symbols.between]: [T,T]} {
@@ -51,7 +51,7 @@ export function increment(value: number) {
 export function decrement(value: number) {
     return { [symbols.decrement]: value } as unknown as number
 }
-export function delete_<T>(...values: T[]) {
+export function Delete<T>(...values: T[]) {
     return { [symbols.Delete]: new Set(values) } as unknown as Set<T>
 }
 export function append<T>(...values: T[]) {
@@ -64,4 +64,25 @@ export function remove() {
     return symbols.remove as any
 }
 
-export default { equal, greater, greater_equal, lesser, lesser_equal, begins_with, between }
+export default { 
+    equal, 
+    greater, 
+    greater_equal, 
+    lesser, 
+    lesser_equal, 
+    begins_with, 
+    between,
+    contains,
+    In,
+    not_equal,
+    attribute_exists,
+    attribute_type,
+    size,
+    add,
+    increment,
+    decrement,
+    Delete,
+    append,
+    prepend,
+    remove
+}

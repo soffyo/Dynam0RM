@@ -1,4 +1,4 @@
-import * as operators from "../definitions/symbols"
+import * as operators from "src/definitions/symbols"
 
 function attributeIterator(...args: any) {}
 

@@ -1,5 +1,10 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node'
-  };
+  testEnvironment: 'node',
+  moduleNameMapper: {
+    '^src/(.*)$': '<rootDir>/src/$1'
+  },
+  transform: {
+    '^.+\.ts$': ['ts-jest', { tsconfig: '<rootDir>/__tests__/tsconfig.json' }]
+  }
+}

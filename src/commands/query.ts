@@ -1,10 +1,11 @@
 import { GlobalSecondaryIndex, LocalSecondaryIndex } from "@aws-sdk/client-dynamodb"
 import { QueryCommand, QueryCommandInput, QueryCommandOutput } from "@aws-sdk/lib-dynamodb"
 import { handleConditions } from "src/generators"
-import { Dynam0RX } from "src/mixin"
+import { dynam0RXMixin } from "src/mixin"
 import { isObject } from "src/utils"
 import { SimpleCommand } from "src/commands/command"
 import { Query as TQuery } from 'src/types'
+import * as symbols from 'src/private/symbols'
 
 interface QueryConfig {
     Limit?: number
@@ -15,7 +16,7 @@ interface QueryConfig {
 
 export class Query<T> extends SimpleCommand<T, QueryCommandInput, QueryCommandOutput, T[]> {
     protected readonly command: QueryCommand
-    constructor(target: object, query: TQuery<T>, config?: QueryConfig) {
+    constructor(target: { new (...args: any[]): {} }, query: TQuery<T>, config?: QueryConfig) {
         super(target)
         const ExpressionAttributeNames = {}
         const ExpressionAttributeValues = {}
@@ -30,7 +31,7 @@ export class Query<T> extends SimpleCommand<T, QueryCommandInput, QueryCommandOu
             Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
             if (isObject(value)) {
                 for (const symbol of Object.getOwnPropertySymbols(value)) {
-                    handleConditions(symbol, (value as any)[symbol], [key], ExpressionAttributeValues, KeyConditionExpressions)
+                    handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, KeyConditionExpressions)
                 }
             }
         }
@@ -38,7 +39,9 @@ export class Query<T> extends SimpleCommand<T, QueryCommandInput, QueryCommandOu
             Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
             if (isObject(value)) {
                 for (const symbol of Object.getOwnPropertySymbols(value)) {
-                    handleConditions(symbol, (value as any)[symbol], [key], ExpressionAttributeValues, FilterExpressions)
+                    if (Object.keys(symbols.query).some(k => (symbols.query as any)[k] === symbol)) {
+                        handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, FilterExpressions)
+                    }
                 }
             }
         }
@@ -77,13 +80,13 @@ export class Query<T> extends SimpleCommand<T, QueryCommandInput, QueryCommandOu
             ExpressionAttributeNames,
             ExpressionAttributeValues,
             KeyConditionExpression: [...new Set(KeyConditionExpressions)].join(' AND '),
-            FilterExpression: FilterExpressions.length > 0 ? [...new Set(FilterExpressions)].join(' AND ') : undefined,
+            FilterExpression: FilterExpressions.length ? [...new Set(FilterExpressions)].join(' AND ') : undefined,
         })
     }
     public async exec() {
         try {
             const { Items, Count } = await this.send()
-            this.response.content = Items?.map(item => Dynam0RX.make(item)) as T[]
+            this.response.output = Items?.map(item => dynam0RXMixin(this.target).make(item)) as T[]
             this.response.message = `Query result returned ${Count} Items`
             this.response.ok = true
         } catch (error: any) {

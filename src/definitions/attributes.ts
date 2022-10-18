@@ -23,6 +23,7 @@ export function formatAttributeType(type: AttributeTypes) {
         case 'binary-set': return 'BS'
         case 'object': return 'MAP'
         case 'null': return 'NULL'
+        default: return 
     }
 }
 

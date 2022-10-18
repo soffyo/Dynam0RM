@@ -18,6 +18,6 @@
 * Check if paginator is really needed **??**
 * Implement TimeToLive
 * Implement **OR** operator
-* Add operators handling to update statements
+* ~~Add operators handling to update statements~~
 ## README
 * Rewrite including new features

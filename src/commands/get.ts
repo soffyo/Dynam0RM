@@ -1,11 +1,11 @@
 import { GetCommand, GetCommandInput, GetCommandOutput } from "@aws-sdk/lib-dynamodb"
 import { SimpleCommand } from 'src/commands/command'
 import { PrimaryKeys } from "src/types"
-import { Dynam0RX } from "src/mixin"
+import { dynam0RXMixin } from "src/mixin"
 
 export class Get<T> extends SimpleCommand<T, GetCommandInput, GetCommandOutput> {
     protected command: GetCommand
-    public constructor(target: object, Key: PrimaryKeys<T>) {
+    public constructor(target: { new (...args: any[]): {} }, Key: PrimaryKeys<T>) {
         super(target)
         this.command = new GetCommand({ TableName: this.tableName, Key })
     }
@@ -13,7 +13,7 @@ export class Get<T> extends SimpleCommand<T, GetCommandInput, GetCommandOutput> 
         try {
             const { Item } = await this.send()
             if (Item) {
-                this.response.content = Dynam0RX.make(Item) as T
+                this.response.output = dynam0RXMixin(this.target).make(Item) as T
                 this.response.message = 'Item retrieved successfully.'
             } else {
                 this.response.message = 'No Item found.'
@@ -22,7 +22,7 @@ export class Get<T> extends SimpleCommand<T, GetCommandInput, GetCommandOutput> 
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
-            this.response.error = error
+            this.response.error = error.name
         } finally {
             return this.response
         }

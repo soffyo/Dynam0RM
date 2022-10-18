@@ -1,88 +1,88 @@
-import { Size } from "src/types"
-import { AttributeTypes } from "src/definitions/attributes"
-import * as symbols from "src/definitions/symbols"
+import { Size as TSize } from 'src/types'
+import { AttributeTypes } from 'src/definitions/attributes'
+import * as symbols from 'src/private/symbols'
 
-export function attribute_exists(value: boolean) {
+export function AttributeExists(value: boolean) {
     return { [symbols.attributeExists]: value }
 }
-export function attribute_type(value: AttributeTypes) {
-    return { [symbols.attributeType]: value}
+export function AttributeType(value: AttributeTypes) {
+    return { [symbols.attributeType]: value }
 }
-export function contains<T>(value: T) {
-    return { [symbols.contains]: value }
+export function Contains<T>(...values: T[]) {
+    return { [symbols.contains]: values }
 }
-export function begins_with(value: string) {
+export function BeginsWith(value: string) {
     return { [symbols.beginsWith]: value }
 }
 export function In<T>(...values: T[]) {
     return { [symbols.into]: values }
 }
-export function between<T>(start: T, end: T): { [symbols.between]: [T,T]} {
+export function Between<T>(start: T, end: T): { [symbols.between]: [T,T] } {
     return { [symbols.between]: [start, end] }
 }
-export function size(value: Size) {
+export function Size(value: TSize) {
     return { [symbols.size]: value }
 }    
-export function equal<T>(value: T) {
+export function Equal<T>(value: T) {
     return { [symbols.equal]: value }
 }
-export function not_equal<T>(value: T) {
+export function NotEqual<T>(value: T) {
     return { [symbols.notEqual]: value }
 }
-export function greater<T extends (string|number)>(value: T) {
+export function Greater<T extends (string|number)>(value: T) {
     return { [symbols.greater]: value }
 }
-export function lesser<T extends (string|number)>(value: T) {
+export function Lesser<T extends (string|number)>(value: T) {
     return { [symbols.lesser]: value }
 }
-export function greater_equal<T extends (string|number)>(value: T) {
+export function GreaterEqual<T extends (string|number)>(value: T) {
     return { [symbols.greaterEqual]: value }
 }
-export function lesser_equal<T extends (string|number)>(value: T) {
+export function LesserEqual<T extends (string|number)>(value: T) {
     return { [symbols.lesserEqual]: value }
 }
 // Update symbols
-export function add<T>(...values: T[]) {
-    return { [symbols.add]: new Set(values) } as unknown as Set<T>
+export function Add<X, T extends Set<X>>(...values: X[]) {
+    return { [symbols.add]: new Set(values) }
 }
-export function increment(value: number) {
-    return { [symbols.increment]: value } as unknown as number
+export function Increment(value: number) {
+    return { [symbols.increment]: value }
 }
-export function decrement(value: number) {
-    return { [symbols.decrement]: value } as unknown as number
+export function Decrement(value: number) {
+    return { [symbols.decrement]: value }
 }
 export function Delete<T>(...values: T[]) {
-    return { [symbols.Delete]: new Set(values) } as unknown as Set<T>
+    return { [symbols.Delete]: new Set(values) }
 }
-export function append<T>(...values: T[]) {
-    return { [symbols.append]: values } as unknown as T[]
+export function Append<T>(...values: T[]) {
+    return { [symbols.append]: values }
 }
-export function prepend<T>(...values: T[]) {
-    return { [symbols.prepend]: values } as unknown as T[]
+export function Prepend<T>(...values: T[]) {
+    return { [symbols.prepend]: values }
 }
-export function remove() {
-    return symbols.remove as any
+export function Remove(): typeof symbols.remove {
+    return symbols.remove
 }
 
 export default { 
-    equal, 
-    greater, 
-    greater_equal, 
-    lesser, 
-    lesser_equal, 
-    begins_with, 
-    between,
-    contains,
+    Equal,
+    Greater,
+    GreaterEqual,
+    Lesser,
+    LesserEqual,
+    BeginsWith,
+    Between,
+    Contains,
     In,
-    not_equal,
-    attribute_exists,
-    attribute_type,
-    size,
-    add,
-    increment,
-    decrement,
+    NotEqual,
+    AttributeExists,
+    AttributeType,
+    Size,
+    Add,
+    Increment,
+    Decrement,
     Delete,
-    append,
-    prepend,
-    remove
+    Append,
+    Prepend,
+    Remove
 }

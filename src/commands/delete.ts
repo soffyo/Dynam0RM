@@ -3,11 +3,11 @@ import { SimpleCommand } from "./command"
 import { isObject } from "src/utils"
 import { handleConditions } from "src/generators"
 import { PrimaryKeys, Condition } from "src/types"
-import * as symbol from "src/definitions/symbols"
+import * as symbols from "src/private/symbols"
 
 export class Delete<T> extends SimpleCommand<T, DeleteCommandInput, DeleteCommandOutput> {
     protected command: DeleteCommand
-    public constructor(target: object, Key: PrimaryKeys<T>, condition?: Condition<T>) {
+    public constructor(target: { new (...args: any[]): {} }, Key: PrimaryKeys<T>, condition?: Condition<T>) {
         super(target)
         const ExpressionAttributeNames = {}
         const ExpressionAttributeValues = {}
@@ -23,7 +23,7 @@ export class Delete<T> extends SimpleCommand<T, DeleteCommandInput, DeleteComman
                         if (isObject(value)) {
                             iterate(value, path)
                         }
-                    } else if (typeof key === 'symbol' && symbol.symbols.includes(key)) {
+                    } else if (typeof key === 'symbol' && Object.keys(symbols.condition).some(v => (symbols.condition as any)[v] === key)) {
                         handleConditions(key, value, path, ExpressionAttributeValues, Expressions)
                     }
                 }
@@ -41,7 +41,7 @@ export class Delete<T> extends SimpleCommand<T, DeleteCommandInput, DeleteComman
     public async exec() {
         try {
             const { Attributes } = await this.send()
-            this.response.content = Attributes as T
+            this.response.output = Attributes as T
             this.response.message = 'Item deleted successfully'
             this.response.ok = true
         } catch (error: any) {

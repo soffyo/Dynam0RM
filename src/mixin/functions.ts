@@ -1,13 +1,14 @@
-import { KeySchemaElement } from "@aws-sdk/client-dynamodb"
-import { validateType } from "src/validation"
-import { mainPM } from "src/private"
-import * as symbol from "src/definitions/symbols"
+import { KeySchemaElement } from '@aws-sdk/client-dynamodb'
+import { validateType } from 'src/validation'
+import { mainPM } from 'src/private'
+import { Class, JsObject } from 'src/types'
+import * as symbol from 'src/private/symbols'
 
-export function extractKeys(constructor: any, element: any): any {
+export function extractKeys(constructor: Class, element: JsObject): any {
     let keys = {}
         for (const k in element) {
-            if (k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[0]?.AttributeName  || 
-                k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[1]?.AttributeName) {
+            const keySchema = mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)
+            if (keySchema && (k === keySchema[0]?.AttributeName  || k === keySchema[1]?.AttributeName)) {
                 keys = {
                     ...keys,
                     [k]: element[k]
@@ -17,30 +18,26 @@ export function extractKeys(constructor: any, element: any): any {
     return keys
 }
 
-export function excludeKeys(constructor: any, element: any): any {
+export function excludeKeys(constructor: Class, element: any): any {
     const object = { ...element }
     for (const k in object) {
-        if (k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[0]?.AttributeName || 
-            k === mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)[1]?.AttributeName) {
+        const keySchema = mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)
+        if (keySchema && (k === keySchema[0]?.AttributeName ||k === keySchema[1]?.AttributeName)) {
             delete object[k]
         }
     }
     return object
 }
 
-export function constructArray<K, T extends { new (...args: any): K }>(constructor: T, items?: {[k:string]: any}[]) {
-    return items?.map((item) => new constructor(item))
-}
-
-export function proxy(obj: {[k:string]: any}): typeof Proxy.prototype {
-    return new Proxy(obj, {
-        get(target, key: string) {
-            if (!(key in target) && key !== "then") {
+export function proxy <T extends object> (obj: any): T {
+    return new Proxy <T> (obj, {
+        get(target: any, key) {
+            if (!(key in target) && key !== 'then' && typeof key === 'string') {
                 return target[key] = proxy({})
             }
             return Reflect.get(target, key)
         },
-        set(target, key: string, receiver) {
+        set(target, key, receiver) {
             return Reflect.set(target, key, validateType(key, receiver))
         }
     })

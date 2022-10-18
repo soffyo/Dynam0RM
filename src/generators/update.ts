@@ -1,51 +1,41 @@
-import * as operators from "src/definitions/symbols"
+import * as symbols from "src/private/symbols"
 
-function attributeIterator(...args: any) {}
-
-export function updateExpression(target: {[k:string]: any}) {
-    const container_: {[K in ("add"|"delete"|"remove"|"update")]: string[]} = {
-        add: [],
-        delete: [],
-        remove: [],
-        update: [],
-    }
-    function symbols(key: symbol, value: any, path: string[], container: typeof container_) {
-        const $name = path.join(".#")
-        const $value = path.join("_")
-        switch (key) {
-            case operators.add: container.add.push(`#${$name} :${$value}_dynam0rx_add_update`)
+export function handleUpdates(object: { [key: symbol]: any }, paths: string[], attributeValues: {[k:string]: any }, updateExpressions: { [K in ("add"|"delete"|"remove"|"update")]: string[] }) {
+    const attributeName = `#${paths.join('.#')}`
+    let attributeValue = `:${paths.join('_')}`
+    for (const symbol of Object.getOwnPropertySymbols(object)) {
+        const value = object[symbol]
+        switch (symbol) {
+            case symbols.add:
+                attributeValue += '_add'
+                Object.defineProperty(attributeValues, attributeValue, { value, enumerable: true })
+                updateExpressions.add.push(`${attributeName} ${attributeValue}`)
                 break
-            case operators.Delete: container.delete.push(`#${$name} :${$value}_dynam0rx_delete_update`)
+            case symbols.Delete:
+                attributeValue += '_delete'
+                Object.defineProperty(attributeValues, attributeValue, { value, enumerable: true })
+                updateExpressions.delete.push(`${attributeName} ${attributeValue}`)
                 break
-            case operators.append: container.update.push(`#${$name} = list_append(#${$name}, :${$value}_dynam0rx_append_update)`)
+            case symbols.append:
+                attributeValue += '_append'
+                Object.defineProperty(attributeValues, attributeValue, { value, enumerable: true })
+                updateExpressions.update.push(`${attributeName} = list_append(${attributeName}, ${attributeValue})`)
                 break
-            case operators.prepend: container.update.push(`#${$name} = list_append(:${$value}_dynam0rx_prepend_update, #${$name})`)
+            case symbols.prepend:
+                attributeValue += '_append'
+                Object.defineProperty(attributeValues, attributeValue, { value, enumerable: true })
+                updateExpressions.update.push(`${attributeName} = list_append(${attributeValue}, ${attributeName})`)
                 break
-            case operators.increment: container.update.push(`#${$name} = #${$name} + :${$value}_dynam0rx_increment_update`)
+            case symbols.increment:
+                attributeValue += '_increment'
+                Object.defineProperty(attributeValues, attributeValue, { value, enumerable: true })
+                updateExpressions.add.push(`${attributeName} ${attributeValue}`)
                 break
-            case operators.decrement: container.update.push(`#${$name} = #${$name} - :${$value}_dynam0rx_decrement_update`)
+            case symbols.decrement:
+                attributeValue += '_decrement'
+                Object.defineProperty(attributeValues, attributeValue, { value, enumerable: true })
+                updateExpressions.update.push(`${attributeName} = ${attributeName} - ${attributeValue}`)
                 break
         }
     }
-    function strings(key: string, value: any, path: string[], container: typeof container_) {
-        const $name = path.join(".#")
-        const $value = path.join("_")
-        if (value === operators.remove) {
-            container.remove.push(`#${$name}`)
-        } else {
-            container.update.push(`#${$name} = :${$value}_update`)
-        }
-    }
-    attributeIterator(target, container_, symbols, strings)
-    function extract(arr: string[]) {
-        if (arr.length > 0) {
-            return arr.join(", ")
-        } else return ""
-    }
-    const remove = extract(container_.remove)
-    const add = extract(container_.add)
-    const update = extract(container_.update)
-    const delete_ = extract(container_.delete)
-
-    return `${update && "SET " + update} ${add && "ADD " + add} ${delete_ && "DELETE " + delete_} ${remove && "REMOVE " + remove}`
 }

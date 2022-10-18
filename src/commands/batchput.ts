@@ -3,11 +3,9 @@ import { BatchCommand } from "./command"
 
 export class BatchPut<T> extends BatchCommand<T, BatchWriteCommandInput, BatchWriteCommandOutput> {
     protected readonly commands: BatchWriteCommand[] = []
-    protected readonly unprocessedKey: keyof BatchWriteCommandOutput
-    protected readonly contentKey?: keyof BatchWriteCommandOutput
-    public constructor(target: object, Items: T[]) {
-        super(Items.map(Item => ({ ...Item })))
-        for (const input of this.inputs!) {
+    public constructor(target: { new (...args: any[]): {} }, Items: T[]) {
+        super(target, Items.map(Item => ({ ...Item })))
+        if (this.inputs?.length) for (const input of this.inputs) {
             this.commands.push(new BatchWriteCommand({
                 RequestItems: {
                     [this.tableName]: input.map((Item: T) => ({
@@ -16,7 +14,6 @@ export class BatchPut<T> extends BatchCommand<T, BatchWriteCommandInput, BatchWr
                 }
             }))
         }
-        this.unprocessedKey = 'UnprocessedItems'
     }
     public async exec() {
         try {

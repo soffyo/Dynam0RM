@@ -1,9 +1,9 @@
 import { UpdateCommand, UpdateCommandInput, UpdateCommandOutput } from '@aws-sdk/lib-dynamodb'
 import { BatchCommand } from 'src/commands/command'
 import { isObject } from 'src/utils'
-import { handleConditions } from 'src/generators'
-import { PrimaryKeys, Condition } from 'src/types'
-import * as symbol from '../definitions/symbols'
+import { handleConditions, handleUpdates } from 'src/generators'
+import { PrimaryKeys, Condition, Update as TUpdate } from 'src/types'
+import * as symbols from '../private/symbols'
 
 export class Update<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommandOutput> {
     protected readonly commands: UpdateCommand[] = []
@@ -12,15 +12,15 @@ export class Update<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommand
     private readonly ConditionAttributeValues = {}
     private readonly ConditionExpressions: string[] = []
 
-    public constructor(target: object, Key: PrimaryKeys<T>, update: Partial<T>, conditions?: Condition<T>) {
+    public constructor(target: { new (...args: any[]): {} }, Key: PrimaryKeys<T>, update: TUpdate<T>, conditions?: Condition<T>) {
         super(target)
         for (const key in Key) {
             if (key === this.keySchema[0].AttributeName || key === this.keySchema[1].AttributeName) {
-                Object.defineProperty(this.ConditionAttributeNames, `#${key}_dynam0rx_primaryKeys`, { 
+                Object.defineProperty(this.ConditionAttributeNames, `#${key}`, {
                     value: key, 
                     enumerable: true 
                 })
-                this.ConditionExpressions.push(`(attribute_exists(#${key}_dynam0rx_primaryKeys))`)
+                this.ConditionExpressions.push(`(attribute_exists(#${key}))`)
             }
         }
         const iterate_conditions = (target: {[k:string|symbol]: any}, paths: string[]) => {
@@ -33,7 +33,7 @@ export class Update<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommand
                     if (isObject(value)) {
                         iterate_conditions(value, path)
                     }
-                } else if (typeof key === 'symbol' && symbol.symbols.includes(key)) {
+                } else if (typeof key === 'symbol') {
                     handleConditions(key, value, path, this.ConditionAttributeValues, this.ConditionExpressions)
                 }
             }
@@ -41,32 +41,46 @@ export class Update<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommand
         const iterate_updates = (target: {[k:string]: any}, paths: string[]) => {
             const ExpressionAttributeValues = {}
             const ExpressionAttributeNames = {}
-            const UpdateExpressions: string[] = []
+            const UpdateExpressions: {[K in ('add'|'delete'|'remove'|'update')]: string[]} = {
+                add: [], delete: [], remove: [], update: [],
+            }
             for (const [key, value] of Object.entries(target)) {
                 Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
                 let path = [key]
-                if (paths.length > 0 ) {
+                if (paths.length) {
                     path = [...paths, key]
                     for (const k of paths) {
                         Object.defineProperty(ExpressionAttributeNames, `#${k}`, { value: k, enumerable: true })
                     }
                 }
                 if (isObject(value)) {
-                    Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
-                    UpdateExpressions.push(`#${key} = if_not_exists(#${key}, :${key})`) // <-- add this for cumulative update
-                    iterate_updates(value, path)
+                    if (Reflect.ownKeys(value).every(k => typeof k === 'symbol')) {
+                        handleUpdates(value, path, ExpressionAttributeValues, UpdateExpressions )
+                    } else {
+                        Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
+                        UpdateExpressions.update.push(`#${key} = if_not_exists(#${key}, :${key})`)
+                        iterate_updates(value, path)
+                    }
                 } else {
-                    Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
-                    UpdateExpressions.push(`#${path.join('.#')} = :${key}`)// <-- add this for cumulative update
+                    if (value === symbols.remove) {
+                        UpdateExpressions.remove.push(`#${path.join('.#')}`)
+                    } else {
+                        Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
+                        UpdateExpressions.update.push(`#${path.join('.#')} = :${key}`)
+                    }
                 }
-                //UpdateExpressions.push(`#${path.join('.#')} = :${key}`) // <-- remove this for cumulative update
             }
-            const command = UpdateExpressions.length > 0 ? new UpdateCommand({
+            const extract = (arr: string[]) => arr.length ? arr.join(', ') : ''
+            const remove = extract(UpdateExpressions.remove)
+            const add = extract(UpdateExpressions.add)
+            const update = extract(UpdateExpressions.update)
+            const _delete = extract(UpdateExpressions.delete)
+            const command = Object.keys(UpdateExpressions).some(k => UpdateExpressions[k as keyof typeof UpdateExpressions].length) ? new UpdateCommand({
                 TableName: this.tableName,
                 Key,
                 ExpressionAttributeNames,
                 ExpressionAttributeValues,
-                UpdateExpression: 'SET ' + UpdateExpressions.join(', '),
+                UpdateExpression: `${update && "SET " + update}${add && " ADD " + add}${_delete && " DELETE " + _delete}${remove && " REMOVE " + remove}`,
                 ReturnValues: 'ALL_NEW'
             }) : undefined
             return command && this.commands.push(command)
@@ -92,14 +106,14 @@ export class Update<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommand
     public async exec() {
         try {
             const responses = await this.send()
-            const { Attributes } = responses[responses.length - 1]
-            if (Attributes) this.response.content = Attributes as T
+            const { Attributes } = responses[responses.length - 1] ?? { Attributes: undefined }
+            if (Attributes) this.response.output = Attributes as T
             this.response.message = 'Item updated succesfully.'
             this.response.ok = true
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
-            this.response.error = error
+            this.response.error = error.name
         } finally {
             return this.response
         }

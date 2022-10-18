@@ -2,9 +2,9 @@ import { CreateTableCommand, CreateTableCommandInput, CreateTableCommandOutput, 
 import { SimpleCommand } from './command'
 import { TableConfig } from 'src/types'
 
-export class Initialize extends SimpleCommand<never, CreateTableCommandInput, CreateTableCommandOutput> {
+export class Initialize extends SimpleCommand<never, CreateTableCommandInput, CreateTableCommandOutput, CreateTableCommandOutput['TableDescription']> {
     protected command: CreateTableCommand
-    constructor(target: object, config?: TableConfig) {
+    constructor(target: { new (...args: any[]): {} }, config?: TableConfig) {
         super(target);
         (async () => {
             const listTablesCommand = new ListTablesCommand({})
@@ -29,11 +29,13 @@ export class Initialize extends SimpleCommand<never, CreateTableCommandInput, Cr
     public async exec() {
         try {
             const { TableDescription } = await this.send()
+            this.response.output = TableDescription
             this.response.message = `Table "${TableDescription?.TableName}" created successfully`
             this.response.ok = true
         } catch (error: any) {
             this.response.ok = false
-            
+            this.response.message = error.message
+            this.response.error = error.name
         } finally {
             return this.response
         }

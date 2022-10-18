@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "tsnode": "ts-node",
     "git": "git add . && git commit -m",
     "postgit": "git push",
     "version": "git add .",
@@ -12,7 +13,7 @@
     "prepublishOnly": "npm run test",
     "test": "jest",
     "dynamodb": "cd dynamodb_local && java -Djava.library.path=./DynamoDBLocal_lib -jar ./DynamoDBLocal.jar -inMemory",
-    "test-db": "concurrently -P -k -s \"last\" -n \"DynamoDB,Jest\" -c \"bgBlue.bold.white,bgRed.bold.white\" \"npm:dynamodb\" \"sleep 0.2 && jest {@}\" --"
+    "test-db": "concurrently -P -k -s \"last\" -n \"dyna,jest\" -c \"blue,magenta\" \"npm:dynamodb\" \"sleep 0.2 && jest {@}\" --"
   },
   "keywords": [
     "aws",
@@ -24,15 +25,15 @@
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@types/jest": "^29.1.2",
-    "@types/node": "^18.8.3",
+    "@types/node": "^18.11.0",
     "concurrently": "^7.4.0",
-    "jest": "^29.1.2",
+    "jest": "^29.2.0",
     "ts-jest": "^29.0.3",
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.186.0",
-    "@aws-sdk/lib-dynamodb": "^3.186.0",
+    "@aws-sdk/client-dynamodb": "^3.188.0",
+    "@aws-sdk/lib-dynamodb": "^3.188.0",
     "reflect-metadata": "^0.1.13"
   }
 }

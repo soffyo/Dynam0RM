@@ -4,7 +4,7 @@ import { BatchCommand } from "./command"
 
 export class Save<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommandOutput> {
     protected readonly commands: UpdateCommand[] = []
-    constructor(target: object, Key: {[k:string]: any}, update: {[k:string]: any}) {
+    public constructor(target: { new (...args: any[]): {} }, Key: {[k:string]: any}, update: {[k:string]: any}) {
         super(target)
         const iterate = (object: {[k:string]: any}, paths: string[] = []) => {
             let ExpressionAttributeValues: {[k:string]: any} | undefined
@@ -46,11 +46,18 @@ export class Save<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommandOu
         iterate(update)
         this.commands.reverse()
     }
+    public async send() {
+        const responses: UpdateCommandOutput[] = []
+        for (const command of this.commands) {
+            responses.push(await this.dynamoDBDocumentClient.send(command))
+        }
+        return responses
+    }
     public async exec() {
         try {
             const responses = await this.send()
             const { Attributes } = responses[responses.length - 1]
-            if (Attributes) this.response.content = Attributes as T
+            if (Attributes) this.response.output = Attributes as T
             this.response.message = 'Item saved succesfully.'
             this.response.ok = true    
         } catch (error: any) {

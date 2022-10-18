@@ -1,7 +1,9 @@
 import { AttributeTypes } from "src/definitions/attributes"
-import * as symbols from "../definitions/symbols"
+import * as symbols from "../private/symbols"
 
 // Utility types
+export type Class = { new (...args: any[]) : {} }
+export type JsObject<P extends PropertyKey = PropertyKey, V = any> = { [K in P]: V }
 export type Valueof<T> = T[keyof T]
 export type Only<T,K extends keyof T> = Pick<T,K> & { [P in Exclude<keyof T,K>]?: never }
 export type OmitMethods<T> = { [K in keyof T as T[K] extends Function ? never : K]: T[K] }
@@ -28,10 +30,11 @@ export type PrimaryKeys<T> = Valueof<{
 export type Allowed = string | number | boolean | Set<string|number> | Array<string|number> | null | undefined
 export type AllowedObject = { [s:string]: Allowed | AllowedObject } | undefined
 
-type ConditionTypes<K extends symbols.QuerySymbols|symbols.ConditionSymbols,V> = K extends typeof symbols.beginsWith ? V extends (string|undefined) ? V : never :
+type ConditionTypes<K extends symbols.QuerySymbols|symbols.ConditionSymbols,V> =
+    K extends typeof symbols.beginsWith ? V extends (string|undefined) ? V : never :
     K extends typeof symbols.between ? V extends (number|undefined) ? [V,V] : never :
     K extends typeof symbols.into ? V[] :
-    K extends typeof symbols.contains ? V extends (Array<infer T>|Set<infer T>|undefined) ? T : V extends (string|undefined) ? V : never :
+    K extends typeof symbols.contains ? V extends (Array<infer T>|Set<infer T>|undefined) ? T|T[] : V extends (string|undefined) ? V|V[] : never :
     K extends typeof symbols.attributeExists ? boolean :
     K extends typeof symbols.attributeType ? AttributeTypes :
     K extends typeof symbols.size ? Size 
@@ -69,9 +72,11 @@ export type QueryWithFilters<T> = Valueof<{
 }>
 
 export type Update<T> = {
-    [K in keyof T]?: T[K] | 
-        T[K] extends Set<infer i> ? { add: i } : 
-        T[K] extends Array<infer i> ? { append: i } :
-        T[K] extends number ? { increment: number }
+    [K in keyof T]?: T[K] extends AllowedObject ? Update<T[K]> : T[K] | typeof symbols.remove |
+    (
+        T[K] extends Set<infer S> ? { [K in (typeof symbols.update.add | typeof symbols.update.delete)]: Set<S> } :
+        T[K] extends Array<infer S> ? { [K in (typeof symbols.update.append | typeof symbols.update.prepend)]: S[] } :
+        T[K] extends number ? { [K in (typeof symbols.update.increment | typeof symbols.update.decrement)]: number }
         : never
+    )
 }

@@ -3,7 +3,7 @@ import { SimpleCommand } from "./command"
 
 export class Drop extends SimpleCommand<never, DeleteTableCommandInput, DeleteTableCommandOutput> {
     protected command: DeleteTableCommand
-    constructor(target: object) {
+    constructor(target: { new (...args: any[]): {} }) {
         super(target)
         this.command = new DeleteTableCommand({ TableName: this.tableName })
     }

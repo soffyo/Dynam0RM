@@ -1,5 +1,5 @@
 import { ScanCommand, ScanCommandInput, ScanCommandOutput } from "@aws-sdk/lib-dynamodb"
-import { Dynam0RX } from "src/mixin"
+import { dynam0RXMixin } from "src/mixin"
 import { SimpleCommand } from "./command"
 
 interface ScanConfig<T> {
@@ -10,7 +10,7 @@ interface ScanConfig<T> {
 
 export class Scan<T> extends SimpleCommand<T, ScanCommandInput, ScanCommandOutput, T[]> {
     protected readonly command: ScanCommand
-    public constructor(target: object, config?: ScanConfig<T>) {
+    public constructor(target: { new (...args: any[]): {} }, config?: ScanConfig<T>) {
         super(target)
         this.command = new ScanCommand({
             TableName: this.tableName,
@@ -22,7 +22,7 @@ export class Scan<T> extends SimpleCommand<T, ScanCommandInput, ScanCommandOutpu
     public async exec() {
         try {
             const { Items } = await this.send()
-            this.response.content = Items?.map(item => Dynam0RX.make(item)) as unknown as T[]
+            this.response.output = Items?.map(item => (dynam0RXMixin(this.target)).make(item)) as T[]
             this.response.message = 'Table scanned successfully.'
             this.response.ok = true
         } catch (error: any) {

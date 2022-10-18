@@ -30,26 +30,29 @@ export class PrivateMap {
 export function createPrivateMap() {
     const wm = new WeakMap()
     return function(target: object) {
-        if (!wm.has(target)) wm.set(target, {})
         return {
-            set(key: string|symbol, value: any) {
+            get<T = any>(key: string|symbol) {
+                if (wm.has(target)) return wm.get(target)[key] as T
+                return undefined
+            },
+            all(): {[k: string|symbol]: unknown} | undefined {
+                if (wm.has(target)) return wm.get(target)
+                return undefined
+            },
+            set<T>(key: string|symbol, value: T): T {
+                if (!wm.has(target)) wm.set(target, {})
                 Object.defineProperty(wm.get(target), key, {
                     value,
                     enumerable: true,
                     configurable: true
                 })
-            },
-            get<T = any>(key: string|symbol) {
-                return wm.get(target)[key] as T
-            },
-            all() {
-                return wm.get(target)
+                return wm.get(target)[key]
             },
             delete(key: string|symbol) {
-                delete wm.get(target)[key]
+                if (wm.has(target)) delete wm.get(target)[key]
             },
             has(key: string|symbol) {
-                if (key in wm.get(target)) {
+                if (wm.has(target) && key in wm.get(target)) {
                     return true
                 }
                 return false

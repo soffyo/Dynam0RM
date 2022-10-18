@@ -3,9 +3,9 @@ import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
 import { dynam0RXMixin } from 'src/mixin'
 import { mainPM } from 'src/private'
-import * as symbol from 'src/definitions/symbols'
+import * as symbol from 'src/private/symbols'
 
-export function Schema(input?: { dynamoDBConfig: DynamoDBClientConfig }, tableName?: string) {
+export function table(input?: { dynamoDBConfig: DynamoDBClientConfig }, tableName?: string) {
     return function<T extends { new (...args: any[]): {} }>(constructor: T) {
         const dynamodb = new DynamoDBClient(input?.dynamoDBConfig ?? {})
         mainPM(constructor).set(symbol.tableName, tableName ?? constructor.name)

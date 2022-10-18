@@ -4,8 +4,8 @@ import { PrimaryKeys } from "src/types"
 
 export class BatchDelete<T> extends BatchCommand<T, BatchWriteCommandInput, BatchWriteCommandOutput> {
     protected commands: BatchWriteCommand[] = []
-    constructor(target: object, Keys: (PrimaryKeys<T>)[]) {
-        super(Keys)
+    constructor(target: { new (...args: any[]): {} }, Keys: (PrimaryKeys<T>)[]) {
+        super(target, Keys)
         for (const input of this.inputs!) {
             this.commands.push(new BatchWriteCommand({
                 RequestItems: {

@@ -3,7 +3,7 @@ import { SimpleCommand } from 'src/commands/command'
 import { PrimaryKeys } from "src/types"
 import { dynam0RXMixin } from "src/mixin"
 
-export class Get<T> extends SimpleCommand<T, GetCommandInput, GetCommandOutput> {
+export class Get<T> extends SimpleCommand<GetCommandInput, GetCommandOutput, T> {
     protected command: GetCommand
     public constructor(target: { new (...args: any[]): {} }, Key: PrimaryKeys<T>) {
         super(target)

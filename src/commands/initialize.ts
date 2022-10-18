@@ -2,7 +2,7 @@ import { CreateTableCommand, CreateTableCommandInput, CreateTableCommandOutput, 
 import { SimpleCommand } from './command'
 import { TableConfig } from 'src/types'
 
-export class Initialize extends SimpleCommand<never, CreateTableCommandInput, CreateTableCommandOutput, CreateTableCommandOutput['TableDescription']> {
+export class Initialize extends SimpleCommand<CreateTableCommandInput, CreateTableCommandOutput, CreateTableCommandOutput['TableDescription']> {
     protected command: CreateTableCommand
     constructor(target: { new (...args: any[]): {} }, config?: TableConfig) {
         super(target);

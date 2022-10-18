@@ -75,9 +75,7 @@ test('Song', async function() {
 
     //console.dir(await Song.scan(), { depth: null })
 
-    //@ts-ignore
-    const pk = Song.primaryKey({ artist: 'Mich', year: 'd' }).get()
-    console.log(await pk)
+    const pk = await Song.batchGet([{ artist: '', album: '' }])
 
     console.dir(await Song.scan(), { depth: null })
 })

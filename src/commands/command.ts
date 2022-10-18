@@ -31,7 +31,7 @@ abstract class Command<O extends ServiceOutputTypes, R> {
     public abstract exec(): Promise<typeof this.response>
 }
 
-export abstract class SimpleCommand<T, I extends ServiceInputTypes,O extends ServiceOutputTypes, R = T> extends Command<O, R> {
+export abstract class SimpleCommand<I extends ServiceInputTypes,O extends ServiceOutputTypes, T> extends Command<O, T> {
     protected abstract readonly command: any
 
     protected constructor(target: { new (...args: any[]): {} }) {
@@ -43,7 +43,7 @@ export abstract class SimpleCommand<T, I extends ServiceInputTypes,O extends Ser
     }
 }
 
-export abstract class BatchCommand<T, I extends ServiceInputTypes, O extends ServiceOutputTypes, R = T> extends Command<O, R> {
+export abstract class BatchCommand<I extends ServiceInputTypes, O extends ServiceOutputTypes, T> extends Command<O, T> {
     protected abstract readonly commands: any[]
 
     protected constructor(target: { new (...args: any[]): {} }, protected inputs?: any[]) {

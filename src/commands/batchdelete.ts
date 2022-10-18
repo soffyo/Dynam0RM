@@ -2,7 +2,7 @@ import { BatchWriteCommand, BatchWriteCommandInput, BatchWriteCommandOutput, Del
 import { BatchCommand } from "./command"
 import { PrimaryKeys } from "src/types"
 
-export class BatchDelete<T> extends BatchCommand<T, BatchWriteCommandInput, BatchWriteCommandOutput> {
+export class BatchDelete <T> extends BatchCommand<BatchWriteCommandInput, BatchWriteCommandOutput, T> {
     protected commands: BatchWriteCommand[] = []
     constructor(target: { new (...args: any[]): {} }, Keys: (PrimaryKeys<T>)[]) {
         super(target, Keys)
@@ -31,7 +31,7 @@ export class BatchDelete<T> extends BatchCommand<T, BatchWriteCommandInput, Batc
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
-            this.response.error = error
+            this.response.error = error.name
         } finally {
             return this.response
         }

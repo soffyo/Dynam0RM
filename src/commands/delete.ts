@@ -5,7 +5,7 @@ import { handleConditions } from "src/generators"
 import { PrimaryKeys, Condition } from "src/types"
 import * as symbols from "src/private/symbols"
 
-export class Delete<T> extends SimpleCommand<T, DeleteCommandInput, DeleteCommandOutput> {
+export class Delete<T> extends SimpleCommand<DeleteCommandInput, DeleteCommandOutput, T> {
     protected command: DeleteCommand
     public constructor(target: { new (...args: any[]): {} }, Key: PrimaryKeys<T>, condition?: Condition<T>) {
         super(target)
@@ -47,7 +47,7 @@ export class Delete<T> extends SimpleCommand<T, DeleteCommandInput, DeleteComman
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
-            this.response.error = error
+            this.response.error = error.name
         } finally {
             return this.response
         }

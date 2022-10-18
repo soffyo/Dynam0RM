@@ -14,7 +14,7 @@ interface QueryConfig {
     filter?: boolean
 }
 
-export class Query<T> extends SimpleCommand<T, QueryCommandInput, QueryCommandOutput, T[]> {
+export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutput, T[]> {
     protected readonly command: QueryCommand
     constructor(target: { new (...args: any[]): {} }, query: TQuery<T>, config?: QueryConfig) {
         super(target)

@@ -3,7 +3,7 @@ import { BatchCommand } from 'src/commands/command'
 import { dynam0RXMixin } from 'src/mixin'
 import { PrimaryKeys } from 'src/types'
 
-export class BatchGet<T> extends BatchCommand<T, BatchGetCommandInput, BatchGetCommandOutput, T[]> {
+export class BatchGet <T> extends BatchCommand<BatchGetCommandInput, BatchGetCommandOutput, T[]> {
     protected commands: BatchGetCommand[] = []
     public constructor(target: { new (...args: any[]): {} }, Keys: (PrimaryKeys<T>)[]) {
         super(target, Keys)
@@ -25,7 +25,7 @@ export class BatchGet<T> extends BatchCommand<T, BatchGetCommandInput, BatchGetC
                 if (item.Responses) responses.push(item.Responses[this.tableName])
                 if (item.UnprocessedKeys) unprocessed += Object.keys(item.UnprocessedKeys).length
             }
-            this.response.output = responses.slice().flat(Infinity).map(item => dynam0RXMixin(this.target).make(item)) as unknown as T[]
+            this.response.output = responses.slice().flat(Infinity).map(item => dynam0RXMixin(this.target).make(item)) as T[]
             if (unprocessed) {
                 this.response.message = `${unprocessed} items have not been processed.`
             } else {
@@ -35,7 +35,7 @@ export class BatchGet<T> extends BatchCommand<T, BatchGetCommandInput, BatchGetC
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
-            this.response.error = error
+            this.response.error = error.name
         } finally {
             return this.response
         }

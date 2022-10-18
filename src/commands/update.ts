@@ -5,7 +5,7 @@ import { handleConditions, handleUpdates } from 'src/generators'
 import { PrimaryKeys, Condition, Update as TUpdate } from 'src/types'
 import * as symbols from '../private/symbols'
 
-export class Update<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommandOutput> {
+export class Update <T> extends BatchCommand<UpdateCommandInput, UpdateCommandOutput, T> {
     protected readonly commands: UpdateCommand[] = []
 
     private readonly ConditionAttributeNames = {}

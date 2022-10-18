@@ -1,7 +1,7 @@
-import { BatchWriteCommand, BatchWriteCommandInput, BatchWriteCommandOutput } from "@aws-sdk/lib-dynamodb"
-import { BatchCommand } from "./command"
+import { BatchWriteCommand, BatchWriteCommandInput, BatchWriteCommandOutput } from '@aws-sdk/lib-dynamodb'
+import { BatchCommand } from './command'
 
-export class BatchPut<T> extends BatchCommand<T, BatchWriteCommandInput, BatchWriteCommandOutput> {
+export class BatchPut <T> extends BatchCommand <BatchWriteCommandInput, BatchWriteCommandOutput, T> {
     protected readonly commands: BatchWriteCommand[] = []
     public constructor(target: { new (...args: any[]): {} }, Items: T[]) {
         super(target, Items.map(Item => ({ ...Item })))

@@ -2,7 +2,7 @@ import { PutCommand, PutCommandInput, PutCommandOutput } from "@aws-sdk/lib-dyna
 import { attributeNames } from "src/generators"
 import { SimpleCommand } from "src/commands/command"
 
-export class Put<T extends {[k:string]: any}> extends SimpleCommand<T, PutCommandInput, PutCommandOutput> {
+export class Put<T extends {[k:string]: any}> extends SimpleCommand<PutCommandInput, PutCommandOutput, T> {
     protected readonly command: PutCommand
     public constructor(target: { new (...args: any[]): {} }, Item: T) {
         super(target)

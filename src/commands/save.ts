@@ -2,7 +2,7 @@ import { UpdateCommand, UpdateCommandInput, UpdateCommandOutput } from "@aws-sdk
 import { isObject } from "src/utils"
 import { BatchCommand } from "./command"
 
-export class Save<T> extends BatchCommand<T, UpdateCommandInput, UpdateCommandOutput> {
+export class Save<T> extends BatchCommand<UpdateCommandInput, UpdateCommandOutput, T> {
     protected readonly commands: UpdateCommand[] = []
     public constructor(target: { new (...args: any[]): {} }, Key: {[k:string]: any}, update: {[k:string]: any}) {
         super(target)

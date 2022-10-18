@@ -8,7 +8,7 @@ interface ScanConfig<T> {
     IndexName?: string
 }
 
-export class Scan<T> extends SimpleCommand<T, ScanCommandInput, ScanCommandOutput, T[]> {
+export class Scan <T> extends SimpleCommand<ScanCommandInput, ScanCommandOutput, T[]> {
     protected readonly command: ScanCommand
     public constructor(target: { new (...args: any[]): {} }, config?: ScanConfig<T>) {
         super(target)
@@ -28,7 +28,7 @@ export class Scan<T> extends SimpleCommand<T, ScanCommandInput, ScanCommandOutpu
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
-            this.response.error = error
+            this.response.error = error.name
         } finally {
             return this.response
         }

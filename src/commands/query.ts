@@ -1,17 +1,18 @@
 import { GlobalSecondaryIndex, LocalSecondaryIndex } from "@aws-sdk/client-dynamodb"
 import { QueryCommand, QueryCommandInput, QueryCommandOutput } from "@aws-sdk/lib-dynamodb"
+import { iterateConditions } from 'src/iterators'
 import { handleConditions } from "src/generators"
 import { dynam0RXMixin } from "src/mixin"
 import { isObject } from "src/utils"
 import { SimpleCommand } from "src/commands/command"
-import { Query as TQuery } from 'src/types'
+import { Query as TQuery, JSObject } from 'src/types'
 import * as symbols from 'src/private/symbols'
 
 interface QueryConfig {
     Limit?: number
     IndexName?: string
     ScanIndexForward?: boolean
-    filter?: boolean
+    Filter?: boolean
 }
 
 export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutput, T[]> {
@@ -28,22 +29,18 @@ export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutpu
             KeyConditionExpressions.push(`(#${key} = :${key})`)
         }
         function addSortKey(key: string, value: any) {
-            Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
             if (isObject(value)) {
                 for (const symbol of Object.getOwnPropertySymbols(value)) {
-                    handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, KeyConditionExpressions)
+                    if (Object.keys(symbols.query).some(k => (symbols.query as any)[k] === symbol)) {
+                        Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
+                        handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, KeyConditionExpressions)
+                    }
                 }
             }
         }
         function addFilterKey(key: string, value: any) {
             Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-            if (isObject(value)) {
-                for (const symbol of Object.getOwnPropertySymbols(value)) {
-                    if (Object.keys(symbols.query).some(k => (symbols.query as any)[k] === symbol)) {
-                        handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, FilterExpressions)
-                    }
-                }
-            }
+            iterateConditions(value, [key], ExpressionAttributeNames, ExpressionAttributeValues, FilterExpressions)
         }
         (() => {
             let PK, SK
@@ -67,8 +64,7 @@ export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutpu
                 if (key === PK) addPartitionKey(key, query[key as keyof typeof query])
                 else if (key === SK) addSortKey(key, query[key as keyof typeof query])
                 else {
-                    if (config?.filter) addFilterKey(key, query[key as keyof typeof query])
-                    else addPartitionKey(key, query[key as keyof typeof query])
+                    if (config?.Filter) addFilterKey(key, query[key as keyof typeof query])
                 }
             }
         })()
@@ -81,18 +77,23 @@ export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutpu
             ExpressionAttributeValues,
             KeyConditionExpression: [...new Set(KeyConditionExpressions)].join(' AND '),
             FilterExpression: FilterExpressions.length ? [...new Set(FilterExpressions)].join(' AND ') : undefined,
+            ReturnConsumedCapacity: 'INDEXES'
         })
     }
     public async exec() {
         try {
-            const { Items, Count } = await this.send()
+            const { Items, Count, ScannedCount } = await this.send()
             this.response.output = Items?.map(item => dynam0RXMixin(this.target).make(item)) as T[]
-            this.response.message = `Query result returned ${Count} Items`
+            if (ScannedCount && Count) {
+                if (ScannedCount === Count) this.response.message = `Query operation returned all [${Count}] Items scanned.`
+                else this.response.message = `Query operation scanned [${ScannedCount}] Items but [${Count}] Items were returned due to filters applied.`
+            }
             this.response.ok = true
         } catch (error: any) {
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

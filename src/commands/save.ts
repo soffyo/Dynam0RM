@@ -46,16 +46,9 @@ export class Save<T> extends BatchCommand<UpdateCommandInput, UpdateCommandOutpu
         iterate(update)
         this.commands.reverse()
     }
-    public async send() {
-        const responses: UpdateCommandOutput[] = []
-        for (const command of this.commands) {
-            responses.push(await this.dynamoDBDocumentClient.send(command))
-        }
-        return responses
-    }
     public async exec() {
         try {
-            const responses = await this.send()
+            const responses = await this.send({ parallel: false })
             const { Attributes } = responses[responses.length - 1]
             if (Attributes) this.response.output = Attributes as T
             this.response.message = 'Item saved succesfully.'
@@ -64,6 +57,7 @@ export class Save<T> extends BatchCommand<UpdateCommandInput, UpdateCommandOutpu
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

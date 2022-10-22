@@ -1,15 +1,15 @@
 import { KeySchemaElement, AttributeDefinition } from '@aws-sdk/client-dynamodb'
 import { Class, PrimaryKeys } from 'src/types'
 import { mainPM } from 'src/private'
-import { Dynam0RXError } from "src/validation/error";
+import { Dynam0RXError } from "src/validation/error"
 import * as symbols from 'src/private/symbols'
 
-export function validatePrimaryKey<T>(target: Class, keys: PrimaryKeys<T>) {
-    const ks = mainPM(target).get<KeySchemaElement[]>(symbols.keySchema)
-    const pk = ks && ks[0].AttributeName
-    const sk = ks && ks[1]?.AttributeName
-    const table = mainPM(target).get<string>(symbols.tableName)
-    const wrong = []
+export function validatePrimaryKey<T>(target: Class, keys: PrimaryKeys<T>, secondaryIndex?: boolean) {
+    let ks = mainPM(target).get<KeySchemaElement[]>(symbols.keySchema)
+    let pk = ks && ks[0].AttributeName
+    let sk = ks && ks[1]?.AttributeName
+    let table = mainPM(target).get<string>(symbols.tableName)
+    let wrong = []
     let index = 0
     for (const key in keys) {
         if ((keys[key] as any)?.constructor.name !== 'String' && (keys[key] as any)?.constructor.name !== 'Number') {

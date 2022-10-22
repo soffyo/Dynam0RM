@@ -1,10 +1,10 @@
 import { KeySchemaElement } from '@aws-sdk/client-dynamodb'
 import { validateType } from 'src/validation'
 import { mainPM } from 'src/private'
-import { Class, JsObject } from 'src/types'
+import { Class, JSObject } from 'src/types'
 import * as symbol from 'src/private/symbols'
 
-export function extractKeys(constructor: Class, element: JsObject): any {
+export function extractKeys(constructor: Class, element: JSObject): any {
     let keys = {}
         for (const k in element) {
             const keySchema = mainPM(constructor).get<KeySchemaElement[]>(symbol.keySchema)
@@ -32,9 +32,6 @@ export function excludeKeys(constructor: Class, element: any): any {
 export function proxy <T extends object> (obj: any): T {
     return new Proxy <T> (obj, {
         get(target: any, key) {
-            if (!(key in target) && key !== 'then' && typeof key === 'string') {
-                return target[key] = proxy({})
-            }
             return Reflect.get(target, key)
         },
         set(target, key, receiver) {

@@ -7,7 +7,7 @@ export class BatchGet <T> extends BatchCommand<BatchGetCommandInput, BatchGetCom
     protected commands: BatchGetCommand[] = []
     public constructor(target: { new (...args: any[]): {} }, Keys: (PrimaryKeys<T>)[]) {
         super(target, Keys)
-        for (const input of this.inputs!) {
+        if (this.inputs?.length) for (const input of this.inputs!) {
             this.commands.push(new BatchGetCommand({
                 RequestItems: {
                     [this.tableName]: {
@@ -36,6 +36,7 @@ export class BatchGet <T> extends BatchCommand<BatchGetCommandInput, BatchGetCom
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

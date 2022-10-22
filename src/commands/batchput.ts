@@ -31,6 +31,7 @@ export class BatchPut <T> extends BatchCommand <BatchWriteCommandInput, BatchWri
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

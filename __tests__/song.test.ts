@@ -1,15 +1,11 @@
 import { Dynam0RX } from '../src'
-import { Table, PartitionKey, SortKey, LocalSecondaryIndex, GlobalSecondaryIndex } from '../src/decorators'
-import op, {Increment, Decrement, Append, Remove, AttributeExists, Greater, Add, Delete } from '../src/operators';
+import { Table, PartitionKey, SortKey, TimeToLive, GlobalSecondaryIndex, LocalSecondaryIndex } from 'src/decorators'
+import { Global, Local } from "src/decorators/property/indexes";
 import * as dynamoDBConfig from './dbconfig.json'
-import * as symbol from '../src/private/symbols'
-import {sortKey} from "src/decorators/property/primarykey";
+import * as _ from '../src/operators'
 
-const myLocalIndex = new LocalSecondaryIndex<Song>()
-const anotherLocalIndex = new LocalSecondaryIndex()
-const anotherAnotherLocalIndex = new LocalSecondaryIndex()
-const anotherGlobalIndex = new GlobalSecondaryIndex<_table2>()
-const myGlobalIndex = new GlobalSecondaryIndex<_table1>()
+const localI = new LocalSecondaryIndex<Song>({ attributes: ['title']})
+const globalI = new GlobalSecondaryIndex()
 
 @Table({ dynamoDBConfig })
 class Song extends Dynam0RX {
@@ -17,65 +13,49 @@ class Song extends Dynam0RX {
     artist: string
     @SortKey
     title: string
+    @Global('as').partitionKey
     album: string
-    @myLocalIndex.sortKey
+    @Global('as').sortKey
     year: number
-    genre: Set<string>
-    reviews?: {
-        good: number
-        bad: number
-    }
-}
-
-@Table({ dynamoDBConfig })
-class _table1 extends Dynam0RX {
-    @PartitionKey
-    pk: string
-    @sortKey
-    b1: number
-    c1?: string
-    d1?: number
-}
-
-@Table({ dynamoDBConfig })
-class _table2 extends Dynam0RX {
-    @anotherAnotherLocalIndex.sortKey
-    @anotherGlobalIndex.sortKey
-    c2?: string
-    @anotherLocalIndex.sortKey
-    @anotherGlobalIndex.partitionKey
-    d2?: number
-    @SortKey
-    b2: number
-    @PartitionKey
-    a2: string
+    genre?: Set<string>
+    reviews? = { good: 0, bad: 0 }
+    @TimeToLive
+    expiration?: number
 }
 
 test('Song', async function() {
-    const createSong = await Song.init()
-    const createTable1 = await _table1.init()
+    const songs: Song[] = []
+    const addSongInfo = async (song: Song, title: string, album: string, year: number) => {
+        song.title = title
+        song.album = album
+        song.year = year
+    }
+    for (let i = 0; i <= 10; i++) {
+        const song = new Song()
+        song.artist = 'Michael Jackson'
+        song.expiration = Math.floor(Date.now() / 1000) + 60000
+        switch (i) {
+            case 0: await addSongInfo(song, 'Billie Jean', 'Thriller', 1982); break
+            case 1: await addSongInfo(song, 'Heal the World', 'Dangerous', 1991); break
+            case 2: await addSongInfo(song, 'Thriller', 'Thriller', 1982); break
+            case 3: await addSongInfo(song, 'Beat It', 'Thriller', 1982); break
+            case 4: await addSongInfo(song, 'Remember the Time', 'Dangerous', 1991); break
+            case 5: await addSongInfo(song, 'Rock With You', 'Off the Wall', 1979); break
+            case 6: await addSongInfo(song, 'You Rock My World', 'Invincible', 2001); break
+            case 7: await addSongInfo(song, 'Jam', 'Dangerous', 1992); break
+            case 8: await addSongInfo(song, 'Heaven Can Wait', 'Invincible', 2001); break
+            case 9: await addSongInfo(song, 'Don\'t Stop \'til You Get Enough', 'Off the Wall', 1979); break
+            case 10: await addSongInfo(song, 'Dirty Diana', 'Bad 25', 1987); break
+        }
+        songs.push(song)
+    }
 
-    await Song.make({
-        artist: 'Michael Jackson',
-        title: 'Thriller',
-        album: 'Thriller',
-        year: 1982,
-        genre: new Set(['rock', 'pop'])
-    }).save()
+    const createSongTable = await Song.createTable({ stream: 'keys-only' })
+    await Song.batchPut(songs)
+    const rwy = Song.primaryKey({ artist: 'Michael Jackson', title: 'Rock With You' })
+    const jam = Song.primaryKey({ artist: 'Michael Jackson', title: 'Jam' })
+    const upd = await jam.update({ genre: _.Add('disco', 'rock', 'pop') }).now()
+    console.dir(upd, {depth: null})
 
-    const bj = new Song()
-    bj.artist = 'Michael Jackson'
-    bj.title = 'Billie Jean'
-    bj.album = 'Thriller'
-    bj.year = 1985
-    bj.genre = new Set()
-    bj.genre.add('si')
-    bj.reviews.good = 200
-    await bj.save()
-
-    //console.dir(await Song.scan(), { depth: null })
-
-    const pk = await Song.batchGet([{ artist: '', album: '' }])
-
-    console.dir(await Song.scan(), { depth: null })
+    await Song.destroy()
 })

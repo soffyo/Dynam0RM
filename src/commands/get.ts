@@ -23,6 +23,7 @@ export class Get<T> extends SimpleCommand<GetCommandInput, GetCommandOutput, T> 
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

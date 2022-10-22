@@ -10,7 +10,7 @@ function addAttribute(prototype: any, key: string, keySchemaElement: KeySchemaEl
     addToPrivateMapArray(mainPM, prototype.constructor, symbols.attributeDefinitions, attributeDefinition(key, type))
 }
 
-export function partitionKey(prototype: any, key: string) {
+export function PartitionKey(prototype: any, key: string) {
     const localIndexes = mainPM(prototype.constructor).get<LocalSecondaryIndex[]>(symbols.localIndexes)
     const keySchemaElement: KeySchemaElement = {
         AttributeName: key,
@@ -22,10 +22,12 @@ export function partitionKey(prototype: any, key: string) {
     addAttribute(prototype, key, keySchemaElement, 0)
 }
 
-export function sortKey(prototype: any, key: string) {
+export function SortKey(prototype: any, key: string) {
     const keySchemaElement: KeySchemaElement = {
         AttributeName: key,
         KeyType: 'RANGE'
     }
     addAttribute(prototype, key, keySchemaElement, 1)
 }
+
+export const PrimaryKey = { partitionKey: PartitionKey, sortKey: SortKey }

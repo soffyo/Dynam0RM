@@ -10,7 +10,7 @@ export function handleConditions(key: symbol, value: any, path: string[], attrib
         for (const k in attributeValues) {
             if (value === k) {
                 const i = k.match(/\d$/)?.index
-                value = i ? k.slice(0, i) + (Number(k.slice(i)) + 1) : `${value}_1`
+                value = i ? k.slice(0, i) + (+k.slice(i) + 1) : `${value}_1`
             }
         }
         return value

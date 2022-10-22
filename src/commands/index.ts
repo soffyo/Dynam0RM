@@ -1,4 +1,4 @@
-export * from './initialize'
+export * from './createtable'
 export * from './put'
 export * from './scan'
 export * from './drop'

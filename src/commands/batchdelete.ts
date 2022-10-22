@@ -6,7 +6,7 @@ export class BatchDelete <T> extends BatchCommand<BatchWriteCommandInput, BatchW
     protected commands: BatchWriteCommand[] = []
     constructor(target: { new (...args: any[]): {} }, Keys: (PrimaryKeys<T>)[]) {
         super(target, Keys)
-        for (const input of this.inputs!) {
+        if (this.inputs?.length) for (const input of this.inputs) {
             this.commands.push(new BatchWriteCommand({
                 RequestItems: {
                     [this.tableName]: input.map((Key: {}) => ({
@@ -32,6 +32,7 @@ export class BatchDelete <T> extends BatchCommand<BatchWriteCommandInput, BatchW
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

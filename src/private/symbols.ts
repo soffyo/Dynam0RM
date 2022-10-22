@@ -38,9 +38,10 @@ export const globalIndexes = Symbol.for('globalIndexes')
 export const tableName = Symbol.for('tableName')
 export const client = Symbol.for('client')
 export const dynamodb = Symbol.for('dynamodb')
+export const ttl = Symbol.for('ttl')
 
 export const prop = { keySchema, attributeDefinitions, localIndexes, globalIndexes, tableName, client, dynamodb }
 
 export type UpdateSymbols = typeof add | typeof Delete | typeof append | typeof remove
-export type ConditionSymbols = typeof contains | typeof into | typeof size | typeof attributeExists | typeof attributeType
 export type QuerySymbols = typeof equal | typeof notEqual | typeof lesser | typeof lesserEqual | typeof greater | typeof greaterEqual | typeof between | typeof beginsWith
+export type ConditionSymbols = QuerySymbols | typeof contains | typeof into | typeof size | typeof attributeExists | typeof attributeType

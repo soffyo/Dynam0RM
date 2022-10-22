@@ -1,22 +1,33 @@
 import { ScanCommand, ScanCommandInput, ScanCommandOutput } from "@aws-sdk/lib-dynamodb"
 import { dynam0RXMixin } from "src/mixin"
 import { SimpleCommand } from "./command"
+import { iterateConditions } from "src/iterators"
+import { Class, Condition } from 'src/types'
 
 interface ScanConfig<T> {
     Limit?: number,
-    Attributes?: (keyof T)[]
     IndexName?: string
+    Filter?: boolean
 }
 
 export class Scan <T> extends SimpleCommand<ScanCommandInput, ScanCommandOutput, T[]> {
     protected readonly command: ScanCommand
-    public constructor(target: { new (...args: any[]): {} }, config?: ScanConfig<T>) {
+    public constructor(target: Class, config?: ScanConfig<T>, filter?: Condition<T>) {
         super(target)
+        let ExpressionAttributeNames, ExpressionAttributeValues
+        const FilterExpressions: string[] = []
+        if (filter) {
+            ExpressionAttributeNames = {}
+            ExpressionAttributeValues = {}
+            iterateConditions(filter, [], ExpressionAttributeNames, ExpressionAttributeValues, FilterExpressions)
+        }
         this.command = new ScanCommand({
             TableName: this.tableName,
             Limit: config?.Limit,
             IndexName: config?.IndexName,
-            ProjectionExpression: config?.Attributes?.join(', '),
+            ExpressionAttributeNames,
+            ExpressionAttributeValues,
+            FilterExpression: FilterExpressions.length ? FilterExpressions.join(' AND ') : undefined
         })
     }
     public async exec() {
@@ -29,6 +40,7 @@ export class Scan <T> extends SimpleCommand<ScanCommandInput, ScanCommandOutput,
             this.response.ok = false
             this.response.message = error.message
             this.response.error = error.name
+            this.logError(error)
         } finally {
             return this.response
         }

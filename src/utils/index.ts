@@ -1,3 +1,5 @@
+import { JSObject } from 'src/types'
+
 /** Splits an array into arrays of lenght defined by @param: `maxLength`  */
 export function splitArray<T>(array: T[], maxLength: number): T[][] {
     const main: T[][] = []
@@ -17,7 +19,7 @@ export function splitArray<T>(array: T[], maxLength: number): T[][] {
 }
 
 /** Extracts all the property keys from an object and its nested object properties to an array */
-export function propsToArray(obj: {[k:string]: any}): string[] {
+export function propsToArray(obj: JSObject): string[] {
     const attributes: string[] = []
     void (function add(obj) {
         for (const [k,v] of Object.entries(obj)) {
@@ -31,7 +33,7 @@ export function propsToArray(obj: {[k:string]: any}): string[] {
 }
 
 /** Checks if a value is a Javascript Object, excluding most native objects like `Array`, `Set`, `Map` etc. */
-export function isObject<T>(obj: {[k:PropertyKey]: any} | T ): obj is {[k:PropertyKey]: any} {
+export function isObject<T>(obj: JSObject | T ): obj is JSObject {
     return typeof obj === 'object' &&
         obj !== null &&
         !(
@@ -73,4 +75,27 @@ export function checkEquality<T>(A: T, B: T): boolean {
         }
     })(A, B)
     return equality
+}
+
+export function recursiveFreeze<T extends JSObject>(target: T) {
+    if (!Object.isFrozen(target)) Object.freeze(target)
+    for (const key of Reflect.ownKeys(target)) {
+        if (isObject(target[key])) {
+            recursiveFreeze(target[key])
+        }
+    }
+    return target
+}
+
+export function removeUndefined<T extends JSObject>(target: T) {
+    if (isObject(target)) {
+        for (const key of Reflect.ownKeys(target)) {
+            if (target[key] === undefined) {
+                delete target[key]
+            } else if (isObject(target[key])) {
+                removeUndefined(target[key])
+            }
+        }
+    }
+    return target
 }

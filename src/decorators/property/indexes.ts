@@ -1,20 +1,20 @@
-import { GlobalSecondaryIndex as ISecondaryIndex } from '@aws-sdk/client-dynamodb'
-import { attributeDefinition, addToPrivateMapArray } from './functions'
-import { validateKeyDecorator } from 'src/validation'
+import {GlobalSecondaryIndex as ISecondaryIndex} from '@aws-sdk/client-dynamodb'
+import {attributeDefinition, addToPrivateMapArray, getType} from './functions'
 import { Response } from 'src/commands/command'
-import { Scan, Query } from 'src/commands'
 import { OmitMethods } from 'src/types'
-import { mainPM, indexPM } from 'src/private'
+import { TablesWM, IndexesWM } from 'src/private'
 import * as symbols from 'src/private/symbols'
+import {Dynam0RMTable} from "src/table";
+import {Dynam0RMError} from "src/validation";
 
 type PropertyDecorator = (prototype: any, key: string) => void
 
-interface IndexProps<T> {
+export interface IndexProps<T> {
     name?: string,
     attributes?: (keyof OmitMethods<T>)[] | 'keys-only'
 }
 
-interface GlobalIndexProps<T> extends IndexProps<T> {
+export interface GlobalIndexProps<T> extends IndexProps<T> {
     throughput?: {
         read: number
         write: number
@@ -24,19 +24,19 @@ interface GlobalIndexProps<T> extends IndexProps<T> {
 const secondaryIndexSYM = Symbol()
 const finalizeSYM = Symbol()
 
-abstract class SecondaryIndex<T> {
+abstract class SecondaryIndex<T extends Dynam0RMTable> {
     public name: string
     protected constructor(kind: 'local'|'global', props?: GlobalIndexProps<T>) {
-        const secondaryIndex = indexPM(this).set<ISecondaryIndex>(secondaryIndexSYM, {
+        const secondaryIndex = IndexesWM(this).set<ISecondaryIndex>(secondaryIndexSYM, {
             KeySchema: [],
             IndexName: undefined,
             Projection: undefined,
             ProvisionedThroughput: undefined
         })
         if (props?.name) {
-            this.name = props.name
+            this.name = props.name.replace(/[^a-zA-Z0-9\-._]/g, '')
         } else {
-            this.name = `Dynam0RX.${kind}Index`
+            this.name = `Dynam0RM.${kind}Index`
         }
         if (kind === 'global' && props?.throughput) {
             secondaryIndex.ProvisionedThroughput = {
@@ -57,30 +57,28 @@ abstract class SecondaryIndex<T> {
             }
             return { ProjectionType, NonKeyAttributes }
         })()
-        indexPM(this).set<PropertyDecorator>(finalizeSYM, (prototype, key) => {
-            const type = validateKeyDecorator(prototype.constructor, key)
+        IndexesWM(this).set<boolean>('isValid', false)
+        IndexesWM(this).set<PropertyDecorator>(finalizeSYM, (prototype, key) => {
+            const type = getType(prototype, key)
+            if (type === String || type === Number) IndexesWM(this).set<boolean>('isValid', true)
+            const isValid = IndexesWM(this).get<boolean>('isValid')
             if (!props?.name) this.name += `.${key}`
             secondaryIndex.IndexName = this.name
-            addToPrivateMapArray(mainPM, prototype.constructor, symbols.attributeDefinitions, attributeDefinition(key, type))
-            this.scan = function() {
-                return new Scan<T>(prototype.constructor).exec()
-            }
+            if (isValid) addToPrivateMapArray(TablesWM, prototype.constructor, symbols.attributeDefinitions, attributeDefinition(key, type))
+            else Dynam0RMError.invalidDecorator(prototype.constructor, this.constructor.name)
         })
-    }
-    public scan(): Promise<Response<Partial<OmitMethods<T>>[]>> {
-        throw Error('This index has not yet been assigned to any attribute.')
     }
 }
 
-export class LocalSecondaryIndex<T> extends SecondaryIndex<T> {
-    public readonly sortKey: PropertyDecorator
+export class LocalSecondaryIndex <T extends Dynam0RMTable> extends SecondaryIndex<T> {
+    public readonly rangeKey: PropertyDecorator
     public constructor(props?: IndexProps<T>) {
         super('local', props)
-        const secondaryIndex = indexPM(this).get<ISecondaryIndex>(secondaryIndexSYM)
-        const finalize = indexPM(this).get<PropertyDecorator>(finalizeSYM)!
-        this.sortKey = (prototype, key) => {
-            const keySchema = mainPM(prototype.constructor).get(symbols.keySchema)
-            indexPM(this).get<ISecondaryIndex>(secondaryIndexSYM)?.KeySchema?.push(
+        const secondaryIndex = IndexesWM(this).get<ISecondaryIndex>(secondaryIndexSYM)
+        const finalize = IndexesWM(this).get<PropertyDecorator>(finalizeSYM)!
+        this.rangeKey = (prototype, key) => {
+            const keySchema = TablesWM(prototype.constructor).get(symbols.keySchema)
+            IndexesWM(this).get<ISecondaryIndex>(secondaryIndexSYM)?.KeySchema?.push(
                 {
                     AttributeName: (keySchema && keySchema[0]?.AttributeName) ?? undefined,
                     KeyType: 'HASH'
@@ -91,25 +89,20 @@ export class LocalSecondaryIndex<T> extends SecondaryIndex<T> {
                 }
             )
             finalize(prototype, key)
-            addToPrivateMapArray(mainPM, prototype.constructor, symbols.localIndexes, secondaryIndex)
+            if (IndexesWM(this).get<boolean>('isValid')) addToPrivateMapArray(TablesWM, prototype.constructor, symbols.localIndexes, secondaryIndex)
         }
-        Object.defineProperty(this, 'sortKey', {
-            enumerable: true,
-            writable: false,
-            configurable: false
-        })
     }
 }
 
-export class GlobalSecondaryIndex<T> extends SecondaryIndex<T> {
-    public readonly partitionKey: PropertyDecorator
-    public readonly sortKey: PropertyDecorator
+export class GlobalSecondaryIndex <T extends Dynam0RMTable> extends SecondaryIndex<T> {
+    public readonly hashKey: PropertyDecorator
+    public readonly rangeKey: PropertyDecorator
     constructor(props?: GlobalIndexProps<T>) {
         super('global', props)
-        const secondaryIndex = indexPM(this).get<ISecondaryIndex>(secondaryIndexSYM)!
-        const finalize = indexPM(this).get<PropertyDecorator>(finalizeSYM)!
+        const secondaryIndex = IndexesWM(this).get<ISecondaryIndex>(secondaryIndexSYM)!
+        const finalize = IndexesWM(this).get<PropertyDecorator>(finalizeSYM)!
         const addIndex = (index: 0|1): PropertyDecorator => (prototype, key) => {
-            let globalIndexes = mainPM(prototype.constructor).get<ISecondaryIndex[]>(symbols.globalIndexes)
+            let globalIndexes = TablesWM(prototype.constructor).get<ISecondaryIndex[]>(symbols.globalIndexes)
             let isEqual = false
             finalize(prototype, key)
             secondaryIndex.KeySchema![index] = { AttributeName: key, KeyType: index ? 'RANGE' : 'HASH' }
@@ -120,22 +113,10 @@ export class GlobalSecondaryIndex<T> extends SecondaryIndex<T> {
                     isEqual = true
                 }
             }
-            if (!isEqual) addToPrivateMapArray(mainPM, prototype.constructor, symbols.globalIndexes, secondaryIndex)
+            if (!isEqual && IndexesWM(this).get<boolean>('isValid')) addToPrivateMapArray(TablesWM, prototype.constructor, symbols.globalIndexes, secondaryIndex)
         }
-        this.partitionKey = addIndex(0)
-        this.sortKey = addIndex(1)
-        Object.defineProperties(this, {
-            partitionKey: {
-                enumerable: true,
-                writable: false,
-                configurable: false
-            },
-            sortKey: {
-                enumerable: true,
-                writable: false,
-                configurable: false
-            }
-        })
+        this.hashKey = addIndex(0)
+        this.rangeKey = addIndex(1)
     }
 }
 

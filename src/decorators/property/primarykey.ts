@@ -1,17 +1,22 @@
 import { KeySchemaElement, LocalSecondaryIndex } from '@aws-sdk/client-dynamodb'
-import { attributeDefinition, addToPrivateMapArray } from './functions'
-import { validateKeyDecorator } from 'src/validation'
-import { mainPM } from 'src/private'
+import {attributeDefinition, addToPrivateMapArray, getType} from './functions'
+import {Dynam0RMError} from 'src/validation'
+import {TablesWM} from 'src/private'
 import * as symbols from 'src/private/symbols'
 
-function addAttribute(prototype: any, key: string, keySchemaElement: KeySchemaElement, index?: number) {
-    const type = validateKeyDecorator(prototype.constructor, key)
-    addToPrivateMapArray(mainPM, prototype.constructor, symbols.keySchema, keySchemaElement, index)
-    addToPrivateMapArray(mainPM, prototype.constructor, symbols.attributeDefinitions, attributeDefinition(key, type))
+function addAttribute(caller: Function, prototype: any, key: string, keySchemaElement: KeySchemaElement, index?: number) {
+    const type = getType(prototype, key)
+    if (type === String || type === Number) {
+        addToPrivateMapArray(TablesWM, prototype.constructor, symbols.keySchema, keySchemaElement, index)
+        addToPrivateMapArray(TablesWM, prototype.constructor, symbols.attributeDefinitions, attributeDefinition(key, type))
+    } else {
+        const message = `Decorator @${caller.name} may only be used on properties of type String or Number. Property [${key}] has type '${type?.name}'.`
+        Dynam0RMError.invalidDecorator(prototype.constructor, caller.name, message)
+    }
 }
 
-export function PartitionKey(prototype: any, key: string) {
-    const localIndexes = mainPM(prototype.constructor).get<LocalSecondaryIndex[]>(symbols.localIndexes)
+export function HashKey(prototype: any, key: string) {
+    const localIndexes = TablesWM(prototype.constructor).get<LocalSecondaryIndex[]>(symbols.localIndexes)
     const keySchemaElement: KeySchemaElement = {
         AttributeName: key,
         KeyType: 'HASH'
@@ -19,15 +24,13 @@ export function PartitionKey(prototype: any, key: string) {
     if (localIndexes) for (const index of localIndexes) {
         if (index.KeySchema) index.KeySchema[0].AttributeName = key
     }
-    addAttribute(prototype, key, keySchemaElement, 0)
+    addAttribute(HashKey, prototype, key, keySchemaElement, 0)
 }
 
-export function SortKey(prototype: any, key: string) {
+export function RangeKey(prototype: any, key: string) {
     const keySchemaElement: KeySchemaElement = {
         AttributeName: key,
         KeyType: 'RANGE'
     }
-    addAttribute(prototype, key, keySchemaElement, 1)
+    addAttribute(RangeKey, prototype, key, keySchemaElement, 1)
 }
-
-export const PrimaryKey = { partitionKey: PartitionKey, sortKey: SortKey }

@@ -1,65 +1,32 @@
-import { UpdateCommand, UpdateCommandInput, UpdateCommandOutput } from "@aws-sdk/lib-dynamodb"
-import { isObject } from "src/utils"
-import { BatchCommand } from "./command"
+import {UpdateCommand, UpdateCommandInput, UpdateCommandOutput} from '@aws-sdk/lib-dynamodb'
+import {Class, JSObject, PrimaryKey} from 'src/types'
+import {SimpleCommand} from './command'
+import {Dynam0RMTable} from 'src/table'
 
-export class Save<T> extends BatchCommand<UpdateCommandInput, UpdateCommandOutput, T> {
-    protected readonly commands: UpdateCommand[] = []
-    public constructor(target: { new (...args: any[]): {} }, Key: {[k:string]: any}, update: {[k:string]: any}) {
+export class Save<T extends Dynam0RMTable> extends SimpleCommand<UpdateCommandInput, UpdateCommandOutput> {
+    protected readonly command: UpdateCommand
+
+    public constructor(target: Class<T>, Key: PrimaryKey<T>, attributes: JSObject) {
         super(target)
-        const iterate = (object: {[k:string]: any}, paths: string[] = []) => {
-            let ExpressionAttributeValues: {[k:string]: any} | undefined
-            let ExpressionAttributeNames: {[k:string]: any} | undefined
-            let UpdateExpressions: string[] | undefined
-            if (Object.keys(object).length > 0) {
-                ExpressionAttributeNames = {}
-                ExpressionAttributeValues = {}
-                UpdateExpressions = []
-                for (const [key, value] of Object.entries(object)) {
-                    Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-                    let path = [key]
-                    if (paths.length > 0 ) {
-                        path = [...paths, key]
-                        for (const k of paths) {
-                            Object.defineProperty(ExpressionAttributeNames, `#${k}`, { value: k, enumerable: true })
-                        }
-                    }
-                    const $path = path.join(".#")
-                    UpdateExpressions.push(`#${$path} = :${key}`)
-                    if (isObject(value)) {
-                        Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
-                        iterate(value, path)
-                    } else {
-                        Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
-                    }
-                }
+        let ExpressionAttributeNames, ExpressionAttributeValues, UpdateExpressions: string[] | undefined
+        if (this.ignore) for (const key in attributes) if (this.ignore.includes(key)) delete attributes[key]
+        if (Object.keys(attributes).length) {
+            ExpressionAttributeNames = {}
+            ExpressionAttributeValues = {}
+            UpdateExpressions = []
+            for (const [key, value] of Object.entries(attributes)) {
+                Object.defineProperty(ExpressionAttributeNames, `#${key}`, {value: key, enumerable: true})
+                Object.defineProperty(ExpressionAttributeValues, `:${key}`, {value, enumerable: true})
+                UpdateExpressions.push(`#${key} = :${key}`)
             }
-            const command = new UpdateCommand({
-                TableName: this.tableName,
-                Key,
-                ExpressionAttributeNames,
-                ExpressionAttributeValues,
-                UpdateExpression: UpdateExpressions && 'SET ' + UpdateExpressions.join(", "),
-                ReturnValues: 'ALL_NEW'
-            }) 
-            return command && this.commands.push(command)
         }
-        iterate(update)
-        this.commands.reverse()
-    }
-    public async exec() {
-        try {
-            const responses = await this.send({ parallel: false })
-            const { Attributes } = responses[responses.length - 1]
-            if (Attributes) this.response.output = Attributes as T
-            this.response.message = 'Item saved succesfully.'
-            this.response.ok = true    
-        } catch (error: any) {
-            this.response.ok = false
-            this.response.message = error.message
-            this.response.error = error.name
-            this.logError(error)
-        } finally {
-            return this.response
-        }
+        this.command = new UpdateCommand({
+            TableName: this.tableName,
+            Key,
+            ExpressionAttributeNames,
+            ExpressionAttributeValues,
+            UpdateExpression: UpdateExpressions && 'SET ' + UpdateExpressions.join(', '),
+            ReturnValues: 'ALL_NEW'
+        })
     }
 }

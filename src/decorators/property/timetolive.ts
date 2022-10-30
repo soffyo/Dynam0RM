@@ -1,14 +1,21 @@
-import { mainPM } from "src/private"
-import { validateTTLDecorator } from "src/validation";
-import { Dynam0RXError } from "src/validation/error";
+import {TablesWM} from 'src/private'
+import {Dynam0RMError} from 'src/validation'
+import {getType} from './functions'
 import * as symbols from 'src/private/symbols'
 
 export function TimeToLive(prototype: any, key: string) {
-    const PM = mainPM(prototype.constructor)
-    validateTTLDecorator(prototype.constructor, key)
-    if (PM.has(symbols.ttl)) {
-        throw new Dynam0RXError(`Multiple TimeToLive decorators found on [${prototype.constructor.name}]. Only one TimeToLive attribute is allowed.`)
+    const PM = TablesWM(prototype.constructor)
+    const type = getType(prototype, key)
+    if (type === Number && !PM.has(symbols.ttl)) {
+        TablesWM(prototype.constructor).set(symbols.ttl, key)
     } else {
-        mainPM(prototype.constructor).set(symbols.ttl, key)
+        let message
+        if (type !== Number) {
+            message = `@TimeToLive decorator used on uncompatible property [${key}]. Only one property of type Number may be used.`
+        } else if (PM.has(symbols.ttl)) {
+            message = `Multiple @TimeToLive decorators found on [${prototype.constructor.name}]. `+
+            `Only one TTL attribute is allowed.`
+        }
+        Dynam0RMError.invalidDecorator(prototype.constructor, 'TimeToLive', message)
     }
 }

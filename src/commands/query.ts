@@ -1,101 +1,73 @@
-import { GlobalSecondaryIndex, LocalSecondaryIndex } from "@aws-sdk/client-dynamodb"
-import { QueryCommand, QueryCommandInput, QueryCommandOutput } from "@aws-sdk/lib-dynamodb"
-import { iterateConditions } from 'src/iterators'
-import { handleConditions } from "src/generators"
-import { dynam0RXMixin } from "src/mixin"
-import { isObject } from "src/utils"
-import { SimpleCommand } from "src/commands/command"
-import { Query as TQuery, JSObject } from 'src/types'
-import * as symbols from 'src/private/symbols'
+import {GlobalSecondaryIndex, LocalSecondaryIndex} from "@aws-sdk/client-dynamodb"
+import {QueryCommand, QueryCommandInput, QueryCommandOutput} from "@aws-sdk/lib-dynamodb"
+import {iterateConditionsArray} from 'src/iterators'
+import {handleConditions} from "src/generators"
+import {SimpleCommand} from "src/commands/command"
+import {Class, Condition, QueryObject} from 'src/types'
+import {Dynam0RMTable} from "src/table";
+import {isQuerySymbol} from "src/validation";
 
 interface QueryConfig {
     Limit?: number
     IndexName?: string
     ScanIndexForward?: boolean
-    Filter?: boolean
 }
 
-export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutput, T[]> {
+export class Query<T extends Dynam0RMTable> extends SimpleCommand<QueryCommandInput, QueryCommandOutput> {
     protected readonly command: QueryCommand
-    constructor(target: { new (...args: any[]): {} }, query: TQuery<T>, config?: QueryConfig) {
+    constructor(target: Class<T>,
+                hashValue: string | number,
+                query?: QueryObject<string | number>,
+                filter?: Condition<T>[],
+                {Limit, IndexName, ScanIndexForward}: QueryConfig = {}) {
         super(target)
-        const ExpressionAttributeNames = {}
         const ExpressionAttributeValues = {}
+        const ExpressionAttributeNames = {}
         const KeyConditionExpressions: string[] = []
-        const FilterExpressions: string[] = []
-        function addPartitionKey(key: string, value: any) {
-            Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-            Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
-            KeyConditionExpressions.push(`(#${key} = :${key})`)
-        }
-        function addSortKey(key: string, value: any) {
-            if (isObject(value)) {
-                for (const symbol of Object.getOwnPropertySymbols(value)) {
-                    if (Object.keys(symbols.query).some(k => (symbols.query as any)[k] === symbol)) {
-                        Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-                        handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, KeyConditionExpressions)
+        const FilterExpressions: string[][] = []
+        let hashKey, rangeKey
+        if (IndexName) {
+            const joinedIndexes: GlobalSecondaryIndex[] | LocalSecondaryIndex[] = []
+            if (this.localSecondaryIndexes) joinedIndexes.push(...this.localSecondaryIndexes)
+            if (this.globalSecondaryIndexes) joinedIndexes.push(...this.globalSecondaryIndexes)
+            for (const index of joinedIndexes) {
+                if (index.IndexName === IndexName) {
+                    if (index.KeySchema) {
+                        hashKey = index.KeySchema[0]?.AttributeName
+                        rangeKey = index.KeySchema[1]?.AttributeName ?? undefined
                     }
                 }
             }
+        } else {
+            hashKey = this.keySchema[0]?.AttributeName
+            rangeKey = this.keySchema[1]?.AttributeName
         }
-        function addFilterKey(key: string, value: any) {
-            Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
-            iterateConditions(value, [key], ExpressionAttributeNames, ExpressionAttributeValues, FilterExpressions)
+        if (hashKey && hashValue) {
+            Object.defineProperty(ExpressionAttributeNames, `#${hashKey}`, { value: hashKey, enumerable: true })
+            Object.defineProperty(ExpressionAttributeValues, `:${hashKey}`, { value: hashValue, enumerable: true })
+            KeyConditionExpressions.push(`#${hashKey} = :${hashKey}`)
         }
-        (() => {
-            let PK, SK
-            if (config?.IndexName) {
-                const joinedIndexes: GlobalSecondaryIndex[]|LocalSecondaryIndex[] = []
-                if (this.localSecondaryIndexes) joinedIndexes.push(...this.localSecondaryIndexes)
-                if (this.globalSecondaryIndexes) joinedIndexes.push(...this.globalSecondaryIndexes)
-                for (const index of joinedIndexes) {
-                    if (index.IndexName === config?.IndexName) {
-                        if (index.KeySchema) {
-                            PK = index.KeySchema[0].AttributeName
-                            SK = index.KeySchema[1]?.AttributeName ?? undefined
-                        }
-                    }
-                }
-            } else {
-                PK = this.keySchema[0].AttributeName
-                SK = this.keySchema[1].AttributeName
+        if (query && rangeKey) {
+            const symbol = Reflect.ownKeys(query)[0]
+            if (isQuerySymbol(symbol)) {
+                const value = query[symbol]
+                Object.defineProperty(ExpressionAttributeNames, `#${rangeKey}`, { value: rangeKey, enumerable: true })
+                handleConditions(symbol, value, [rangeKey], ExpressionAttributeValues, KeyConditionExpressions)
             }
-            for (const key of Object.keys(query)) {
-                if (key === PK) addPartitionKey(key, query[key as keyof typeof query])
-                else if (key === SK) addSortKey(key, query[key as keyof typeof query])
-                else {
-                    if (config?.Filter) addFilterKey(key, query[key as keyof typeof query])
-                }
-            }
-        })()
+        }
+        if (filter) {
+            iterateConditionsArray(filter, [], ExpressionAttributeNames, ExpressionAttributeValues, FilterExpressions)
+        }
         this.command = new QueryCommand({
             TableName: this.tableName,
-            IndexName: config?.IndexName,
-            Limit: config?.Limit,
-            ScanIndexForward: config?.ScanIndexForward,
+            IndexName,
+            Limit,
+            ScanIndexForward,
             ExpressionAttributeNames,
             ExpressionAttributeValues,
-            KeyConditionExpression: [...new Set(KeyConditionExpressions)].join(' AND '),
-            FilterExpression: FilterExpressions.length ? [...new Set(FilterExpressions)].join(' AND ') : undefined,
+            KeyConditionExpression: KeyConditionExpressions.join(' AND '),
+            FilterExpression: FilterExpressions.length ? FilterExpressions.map(block => `(${block.join(' AND ')})`).join(' OR ') : undefined,
             ReturnConsumedCapacity: 'INDEXES'
         })
-    }
-    public async exec() {
-        try {
-            const { Items, Count, ScannedCount } = await this.send()
-            this.response.output = Items?.map(item => dynam0RXMixin(this.target).make(item)) as T[]
-            if (ScannedCount && Count) {
-                if (ScannedCount === Count) this.response.message = `Query operation returned all [${Count}] Items scanned.`
-                else this.response.message = `Query operation scanned [${ScannedCount}] Items but [${Count}] Items were returned due to filters applied.`
-            }
-            this.response.ok = true
-        } catch (error: any) {
-            this.response.ok = false
-            this.response.message = error.message
-            this.response.error = error.name
-            this.logError(error)
-        } finally {
-            return this.response
-        }
     }
 }

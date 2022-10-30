@@ -1,4 +1,10 @@
-import { TransactWriteCommand } from "@aws-sdk/lib-dynamodb"
+import { TransactWriteCommand, PutCommandInput, UpdateCommandInput, DeleteCommandInput } from "@aws-sdk/lib-dynamodb"
+
+class Transaction<T> {
+    private readonly Put: PutCommandInput[] = []
+    private readonly Update: UpdateCommandInput[] = []
+    private readonly Delete: DeleteCommandInput[] = []
+}
 
 new TransactWriteCommand({
     TransactItems: [
@@ -11,6 +17,15 @@ new TransactWriteCommand({
                 TableName: '',
                 Key: {},
                 UpdateExpression: ''
+            },
+            Delete: {
+                TableName: '',
+                Key: {}
+            },
+            ConditionCheck: {
+                ConditionExpression: '',
+                TableName: '',
+                Key: {}
             }
         }
     ]

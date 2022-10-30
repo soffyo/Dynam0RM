@@ -42,6 +42,9 @@ export function LesserEqual<T extends (string|number)>(value: T) {
     return { [symbols.lesserEqual]: value }
 }
 // Update symbols
+export function Overwrite<T>(value: T) {
+    return {[symbols.overwrite]: value}
+}
 export function Add<X, T extends Set<X>>(...values: X[]) {
     return { [symbols.add]: new Set(values) }
 }
@@ -64,7 +67,17 @@ export function Remove(): typeof symbols.remove {
     return symbols.remove
 }
 
-export default { 
+export const Query = {BeginsWith, Between, Equal, NotEqual, Greater, Lesser, GreaterEqual, LesserEqual}
+export const Condition = {...Query, AttributeExists, AttributeType, Contains, In, Size}
+export const Update = {
+    Sets: {Add, Delete},
+    Arrays: {Append, Prepend},
+    Numbers: {Increment, Decrement},
+    Overwrite,
+    Remove
+}
+
+export default {
     Equal,
     Greater,
     GreaterEqual,
@@ -84,5 +97,8 @@ export default {
     Delete,
     Append,
     Prepend,
-    Remove
+    Remove,
+    Overwrite
 }
+
+

@@ -21,7 +21,7 @@ export function formatAttributeType(type: AttributeTypes) {
         case 'string-set': return 'SS'
         case 'number-set': return 'NS'
         case 'binary-set': return 'BS'
-        case 'object': return 'MAP'
+        case 'object': return 'M'
         case 'null': return 'NULL'
         default: return 
     }

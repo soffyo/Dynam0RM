@@ -33,7 +33,7 @@ export function propsToArray(obj: JSObject): string[] {
 }
 
 /** Checks if a value is a Javascript Object, excluding most native objects like `Array`, `Set`, `Map` etc. */
-export function isObject<T>(obj: JSObject | T ): obj is JSObject {
+export function isObject<T extends JSObject>(obj: any): obj is T {
     return typeof obj === 'object' &&
         obj !== null &&
         !(

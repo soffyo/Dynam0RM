@@ -1,4 +1,4 @@
-export function createPrivateMap() {
+export function createWeakMap() {
     const wm = new WeakMap()
     return function(target: object) {
         return {

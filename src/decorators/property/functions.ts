@@ -1,8 +1,9 @@
-import { AttributeDefinition } from "@aws-sdk/client-dynamodb"
-import { createPrivateMap } from "src/private/weakmaps"
-import { checkEquality } from "src/utils"
+import {AttributeDefinition} from "@aws-sdk/client-dynamodb"
+import {createWeakMap} from "src/private/weakmaps"
+import {checkEquality} from "src/utils"
+import 'reflect-metadata'
 
-export function addToPrivateMapArray(pm: ReturnType<typeof createPrivateMap>, constructor: object, key: string|symbol, value: any, index?: number) {
+export function addToPrivateMapArray(pm: ReturnType<typeof createWeakMap>, constructor: object, key: string | symbol, value: any, index?: number) {
     if (!pm(constructor).has(key)) {
         pm(constructor).set(key, [])
     }
@@ -19,9 +20,13 @@ export function addToPrivateMapArray(pm: ReturnType<typeof createPrivateMap>, co
     }
 }
 
-export function attributeDefinition(key: string, type: {}): AttributeDefinition {
+export function attributeDefinition(key: string, type: Function): AttributeDefinition {
     return {
         AttributeName: key,
         AttributeType: type === String ? 'S' : type === Number ? 'N' : undefined
     }
+}
+
+export function getType(prototype: Object, key: string): Function {
+    return Reflect.getMetadata('design:type', prototype, key)
 }

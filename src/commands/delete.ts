@@ -1,40 +1,28 @@
 import { DeleteCommand, DeleteCommandInput, DeleteCommandOutput } from "@aws-sdk/lib-dynamodb"
 import { SimpleCommand } from "./command"
-import { iterateConditions } from "src/iterators"
-import { PrimaryKeys, Condition, Class } from "src/types"
+import { iterateConditionsArray } from "src/iterators"
+import { PrimaryKey, Condition, Class } from "src/types"
+import {Dynam0RMTable} from "src/table"
 
-export class Delete<T> extends SimpleCommand<DeleteCommandInput, DeleteCommandOutput, T> {
+export class Delete <T extends Dynam0RMTable> extends SimpleCommand<DeleteCommandInput, DeleteCommandOutput> {
     protected command: DeleteCommand
-    public constructor(target: Class, Key: PrimaryKeys<T>, condition?: Condition<T>) {
+    public constructor(target: Class<T>, Key: PrimaryKey<T>, condition?: Condition<T>[]) {
         super(target)
-        let ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions: string[] = []
-        if (condition) {
+        let ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions: string[][] | undefined
+        if (condition?.length) {
             ExpressionAttributeNames = {}
             ExpressionAttributeValues = {}
-            iterateConditions(condition, [], ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions)
+            ConditionExpressions = []
+            iterateConditionsArray(condition, [], ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions)
         }
         this.command = new DeleteCommand({
             Key,
             TableName: this.tableName,
-            ReturnValues: 'ALL_OLD',
             ExpressionAttributeNames,
             ExpressionAttributeValues,
-            ConditionExpression: ConditionExpressions.length ? ConditionExpressions.join(' AND ') : undefined
+            ConditionExpression: ConditionExpressions?.length ? ConditionExpressions?.map(block => `(${block.join(' AND ')})`).join(' OR ') : undefined,
+            ReturnValues: 'ALL_OLD',
         })
-    }
-    public async exec() {
-        try {
-            const { Attributes } = await this.send()
-            this.response.output = Attributes as T
-            this.response.message = 'Item deleted successfully.'
-            this.response.ok = true
-        } catch (error: any) {
-            this.response.ok = false
-            this.response.message = error.message
-            this.response.error = error.name
-            this.logError(error)
-        } finally {
-            return this.response
-        }
+        console.log(this.command.input)
     }
 }

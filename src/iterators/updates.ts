@@ -1,10 +1,11 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb"
 import { isObject } from 'src/utils'
 import { handleUpdates } from "src/generators"
-import { JSObject, PrimaryKeys } from "src/types"
+import { JSObject, PrimaryKey } from "src/types"
+import {isUpdateSymbol} from "src/validation";
 import * as symbols from 'src/private/symbols'
 
-export function iterateUpdates(target: JSObject, paths: string[], Key: PrimaryKeys<any>, TableName: string, Commands: UpdateCommand[]) {
+export function iterateUpdates(target: JSObject, paths: string[], Key: PrimaryKey<any>, TableName: string, Commands: UpdateCommand[]) {
     const ExpressionAttributeValues = {}
     const ExpressionAttributeNames = {}
     const UpdateExpressions: {[K in ('add'|'delete'|'remove'|'update')]: string[]} = {
@@ -20,19 +21,16 @@ export function iterateUpdates(target: JSObject, paths: string[], Key: PrimaryKe
             }
         }
         if (isObject(value)) {
-            if (Reflect.ownKeys(value).every(k => typeof k === 'symbol')) {
+            if (Reflect.ownKeys(value).every(s => isUpdateSymbol(s))) {
                 handleUpdates(value, path, ExpressionAttributeValues, UpdateExpressions )
             } else {
-                Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value: {}, enumerable: true })
-                UpdateExpressions.update.push(`#${key} = if_not_exists(#${key}, :${key})`)
+                Object.defineProperty(ExpressionAttributeValues, `:${key}_object_map`, { value: {}, enumerable: true })
+                UpdateExpressions.update.push(`#${path.join('.#')} = if_not_exists(#${path.join('.#')}, :${key}_object_map)`)
                 iterateUpdates(value, path, Key, TableName, Commands)
             }
         } else {
             if (value === symbols.remove) {
                 UpdateExpressions.remove.push(`#${path.join('.#')}`)
-            } else {
-                Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
-                UpdateExpressions.update.push(`#${path.join('.#')} = :${key}`)
             }
         }
     }

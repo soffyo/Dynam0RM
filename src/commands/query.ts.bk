@@ -1,0 +1,83 @@
+import { GlobalSecondaryIndex, LocalSecondaryIndex } from "@aws-sdk/client-dynamodb"
+import { QueryCommand, QueryCommandInput, QueryCommandOutput } from "@aws-sdk/lib-dynamodb"
+import { iterateConditions } from 'src/iterators'
+import { handleConditions } from "src/generators"
+import { isObject } from "src/utils"
+import { SimpleCommand } from "src/commands/command"
+import {Query as TQuery, Class} from 'src/types'
+import {Dynam0RM} from "src/main";
+import {isQuerySymbol} from "src/validation";
+
+interface QueryConfig {
+    Limit?: number
+    IndexName?: string
+    ScanIndexForward?: boolean
+    Filter?: boolean
+}
+
+export class Query<T> extends SimpleCommand<QueryCommandInput, QueryCommandOutput> {
+    protected readonly command: QueryCommand
+    constructor(target: Class<Dynam0RM>, query: TQuery<T>, config?: QueryConfig) {
+        super(target)
+        const ExpressionAttributeNames = {}
+        const ExpressionAttributeValues = {}
+        const KeyConditionExpressions: string[] = []
+        const FilterExpressions: string[] = []
+        function addPartitionKey(key: string, value: any) {
+            Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
+            Object.defineProperty(ExpressionAttributeValues, `:${key}`, { value, enumerable: true })
+            KeyConditionExpressions.push(`(#${key} = :${key})`)
+        }
+        function addSortKey(key: string, value: any) {
+            if (isObject(value)) {
+                for (const symbol of Object.getOwnPropertySymbols(value)) {
+                    if (isQuerySymbol(symbol)) {
+                        Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
+                        handleConditions(symbol, value[symbol], [key], ExpressionAttributeValues, KeyConditionExpressions)
+                    }
+                }
+            }
+        }
+        function addFilterKey(key: string, value: any) {
+            Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
+            iterateConditions(value, [key], ExpressionAttributeNames, ExpressionAttributeValues, FilterExpressions)
+        }
+        (() => {
+            let PK, SK
+            if (config?.IndexName) {
+                const joinedIndexes: GlobalSecondaryIndex[]|LocalSecondaryIndex[] = []
+                if (this.localSecondaryIndexes) joinedIndexes.push(...this.localSecondaryIndexes)
+                if (this.globalSecondaryIndexes) joinedIndexes.push(...this.globalSecondaryIndexes)
+                for (const index of joinedIndexes) {
+                    if (index.IndexName === config?.IndexName) {
+                        if (index.KeySchema) {
+                            PK = index.KeySchema[0].AttributeName
+                            SK = index.KeySchema[1]?.AttributeName ?? undefined
+                        }
+                    }
+                }
+            } else {
+                PK = this.keySchema[0].AttributeName
+                SK = this.keySchema[1].AttributeName
+            }
+            for (const key of Object.keys(query)) {
+                if (key === PK) addPartitionKey(key, query[key as keyof typeof query])
+                else if (key === SK) addSortKey(key, query[key as keyof typeof query])
+                else {
+                    if (config?.Filter) addFilterKey(key, query[key as keyof typeof query])
+                }
+            }
+        })()
+        this.command = new QueryCommand({
+            TableName: this.tableName,
+            IndexName: config?.IndexName,
+            Limit: config?.Limit,
+            ScanIndexForward: config?.ScanIndexForward,
+            ExpressionAttributeNames,
+            ExpressionAttributeValues,
+            KeyConditionExpression: [...new Set(KeyConditionExpressions)].join(' AND '),
+            FilterExpression: FilterExpressions.length ? [...new Set(FilterExpressions)].join(' AND ') : undefined,
+            ReturnConsumedCapacity: 'INDEXES'
+        })
+    }
+}

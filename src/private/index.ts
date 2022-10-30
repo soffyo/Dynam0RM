@@ -1,4 +1,4 @@
-import { createPrivateMap } from './weakmaps'
+import { createWeakMap } from './weakmaps'
 
-export const mainPM = createPrivateMap()
-export const indexPM = createPrivateMap()
+export const TablesWM = createWeakMap()
+export const IndexesWM = createWeakMap()

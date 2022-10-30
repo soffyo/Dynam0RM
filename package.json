@@ -1,5 +1,5 @@
 {
-  "name": "dynam0rx",
+  "name": "dynam0rm",
   "version": "1.0.0",
   "description": "AWS DynamoDB Typescript ORM Client",
   "main": "index.js",

@@ -16,8 +16,8 @@
 * Implement **Transactions**
 * ~~Check if paginator is really needed **??**~~
 * ~~Implement TimeToLive~~
-* Implement **OR** and **NOT** operators
-* ~~Implemente Scan filter~~
+* ~~Implement **OR** and **NOT** operators~~
+* ~~Implement Scan filter~~
 * ~~Add operators handling to update statements~~
 ## README
 * Rewrite including new features

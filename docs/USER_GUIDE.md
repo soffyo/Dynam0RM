@@ -1,36 +1,36 @@
 # User guide
 
-* [Introduction](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#introduction)
-* [Define a Schema](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#define-a-schema)
-* [Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#methods)
-  * [Init](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#init)
-  * [Instance Methods](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#instance-methods)
-    * [Put](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#put)
-    * [Save](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#save)
-  * [PrimaryKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#primarykey)
-    * [Get](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#get)
-    * [Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#delete)
-      * [Conditional Delete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-delete)
-    * [Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#update)
-      * [Conditional Update](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-update)
-  * [Drop](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#drop)
-  * [BatchPut](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchput)
-  * [BatchGet](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchget)
-  * [BatchDelete](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#batchdelete)
-  * [Query](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#query)
-* [Components](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#importing)
-  * [Dynam0RX Class](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#dynam0rx-class)
-  * [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators)
-    * [Schema](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#schema)
-    * [PartitionKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#partitionkey)
-    * [SortKey](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#sortkey)
-  * [Conditions Operators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditions-operators)
+* [Introduction](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#introduction)
+* [Define a Schema](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#define-a-schema)
+* [Methods](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#methods)
+  * [Init](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#init)
+  * [Instance Methods](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#instance-methods)
+    * [Put](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#put)
+    * [Save](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#save)
+  * [PrimaryKey](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#primarykey)
+    * [Get](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#get)
+    * [Delete](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#delete)
+      * [Conditional Delete](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#conditional-delete)
+    * [Update](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#update)
+      * [Conditional Update](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#conditional-update)
+  * [Drop](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#drop)
+  * [BatchPut](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#batchput)
+  * [BatchGet](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#batchget)
+  * [BatchDelete](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#batchdelete)
+  * [Query](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#query)
+* [Components](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#importing)
+  * [Dynam0RM Class](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#dynam0rm-class)
+  * [Decorators](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#decorators)
+    * [Schema](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#schema)
+    * [PartitionKey](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#partitionkey)
+    * [SortKey](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#sortkey)
+  * [Conditions Operators](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#conditions-operators)
 ## Introduction
-This guide will focus on Dynam0RX client workflow, covering all its methods and some of the use cases. Things that are strictly related to DynamoDB basic concepts will not be covered as the guide is meant for developers who already have an idea of what DynamoDB is. However, you will find useful links to the original documentation, pointing you in the right direction if you need to learn more about it. 
+This guide will focus on Dynam0RM client workflow, covering all its methods and some of the use cases. Things that are strictly related to DynamoDB basic concepts will not be covered as the guide is meant for developers who already have an idea of what DynamoDB is. However, you will find useful links to the original documentation, pointing you in the right direction if you need to learn more about it. 
 
 Look at this guide as a walkthrough, to be read from start to finish.
 ## Define a Schema
-As seen on the [main page](https://github.com/soffyo/Dynam0RX#how-does-it-work), we will be working on *Schemas*. To define a schema, we need to create a new class
+As seen on the [main page](https://github.com/soffyo/Dynam0RM#how-does-it-work), we will be working on *Schemas*. To define a schema, we need to create a new class
 ```typescript
 class Song {
     artist: string
@@ -44,7 +44,7 @@ class Song {
     }
 }
 ```
-As is, the class we just created isn't doing anything else than defining a schema type. This will be the structure of the data we will be putting on the table. But we need to tell Dynam0RX that this class refers to a table. To do this, we'll apply the [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators) 
+As is, the class we just created isn't doing anything else than defining a schema type. This will be the structure of the data we will be putting on the table. But we need to tell Dynam0RM that this class refers to a table. To do this, we'll apply the [Decorators](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#decorators) 
 ```typescript
 @Schema()
 class Song {
@@ -65,7 +65,7 @@ class Song {
 The decorators tell our client that class `Song` refers to a table that contains data with this shape. Plus, we define this table's *[Primary Key Schema](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_KeySchemaElement.html)* with `partitionKey` and `sortKey` decorators. Only one thing's left to do and we'll be good to go: we need to *extend* our class
 ```typescript
 @Schema()
-class Song extends Dynam0RX {
+class Song extends Dynam0RM {
     @partitionKey
     artist: string
     @sortKey
@@ -80,14 +80,14 @@ class Song extends Dynam0RX {
     }
 }
 ```
-We added `extends Dynam0RX` clause, which is needed to tell typescript that our class have a constructor and all the **methods** we're going to use in the following sections. From now on, we'll be working on this class we just defined and refer to it in all the following code examples.
+We added `extends Dynam0RM` clause, which is needed to tell typescript that our class have a constructor and all the **methods** we're going to use in the following sections. From now on, we'll be working on this class we just defined and refer to it in all the following code examples.
 ## Methods
 The majority of our methods will be *static methods*
 ### Init
 ```typescript
 await Song.init()
 ```
-This will just create the table for the first time (if it doesn't already exist). The table we just created will be named after the class identifier (`Song` in our case). If we wanted to give it a different name, we could have done it by passing it to the `@Schema` decorator. You can find more about it in the [Decorators paragraph](https://github.com/soffyo/Dynam0RX#decorators).
+This will just create the table for the first time (if it doesn't already exist). The table we just created will be named after the class identifier (`Song` in our case). If we wanted to give it a different name, we could have done it by passing it to the `@Schema` decorator. You can find more about it in the [Decorators paragraph](https://github.com/soffyo/Dynam0RM#decorators).
 `init` method can be called with a single optional parameter which is a table configuration object with the following properties:
 * **throughput**: *[ProvisionedThroughput object](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html)*. If not specified, DynamoDB "PAY PER REQUEST" mode will be used for this table. 
 * **stream**: *[StreamViewType string](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html)*. If not specified, streams will be disabled for this table. 
@@ -140,7 +140,7 @@ thriller.reviews.good = 400
 
 await thriller.save()
 ```
-> *You can update nested properties even if they have not been defined yet. See [Nested Objects](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#nested-objects) below.
+> *You can update nested properties even if they have not been defined yet. See [Nested Objects](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#nested-objects) below.
 > 
 The reviews will now be saved to the original instance on the table we put before. Otherwise, if we didn't put `thriller` before, `save` would have put a new instance including the *reviews.good* value we just added to it to the table. Another example
 ```typescript
@@ -216,7 +216,7 @@ await shout2000Key.delete({ year: not_equal(2000) })
 
 // Will only delete "Shout 2000" if the year is wrong (The song came out in 2000)
 ```
-A detailed description of possible conditions and how to use them can be found later in this guide, in the [Conditions section](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditions).
+A detailed description of possible conditions and how to use them can be found later in this guide, in the [Conditions section](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#conditions).
 ### Update
 We can use `update` to make changes to an existent instance only if it is already present on the table. If no matching instance is found, the operation will fail. Let's say that we made a mistake when writing the *Primary key*
 ```typescript
@@ -239,7 +239,7 @@ await thrillerKey.update({
     }
 })
 ```
-Will update `jim` only if its `email` field contains "dynam0rx.com" and its `info.age` field has a value greater than `18`. If one of the conditions is not met, the operation will fail.
+Will update `jim` only if its `email` field contains "dynam0rm.com" and its `info.age` field has a value greater than `18`. If one of the conditions is not met, the operation will fail.
 ## Static Methods
 What we have seen before were called *Instance Methods* because they are executed on *instances* of the `User` class but at the top of this guide we have already met a *Static Method*. 
 
@@ -317,7 +317,7 @@ await User.scan(100)
 Let's put our `User` table aside and take a look at a different type of data structure
 ```typescript
 @Schema({ tableName: "Articles" })
-class Article extends Dynam0RX {
+class Article extends Dynam0RM {
     @partitionKey
     readonly slug: "slug" = "slug"
     @sortKey
@@ -327,7 +327,7 @@ class Article extends Dynam0RX {
 }
 ```
 Unlike before, here we have used `@sortKey` decorator too, which will create a full *Primary Key*. 
-> You'll learn more about [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators) in the dedicated section.
+> You'll learn more about [Decorators](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#decorators) in the dedicated section.
 
 Plus, our partition key is already assigned with a `readonly` clause and a literal type. This means that every instance in this table will have a *partition key* of type `string` and with a value of `"slug"`. The reason we designed our schema like this is because we plan to use `query` method on this table to retrieve the data. Let's see how does it work
 ```typescript
@@ -337,34 +337,34 @@ As we already know, every element on the `Articles` table have the same *partiti
 ### Update
 TODO - Update the table
 ## Components 
-Dynam0RX consists of three main components that can be imported from the package:
-* [Dynam0RX Class](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#dynam0rx-class)
-* [Decorators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#decorators)
-* [Conditional Operators](https://github.com/soffyo/Dynam0RX/blob/main/docs/USER_GUIDE.md#conditional-operators)
+Dynam0RM consists of three main components that can be imported from the package:
+* [Dynam0RM Class](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#dynam0rm-class)
+* [Decorators](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#decorators)
+* [Conditional Operators](https://github.com/soffyo/Dynam0RM/blob/main/docs/USER_GUIDE.md#conditional-operators)
 
 Now that we know how to use them, let's see how to import each one of them in our project.
 
-### Dynam0RX Class
-As we've seen before, when we define a *Schema* we create a new class. For all the methods to be available on this *schema-class*, as seen in the above examples, we need our class to extend the main `Dynam0RX` class.
+### Dynam0RM Class
+As we've seen before, when we define a *Schema* we create a new class. For all the methods to be available on this *schema-class*, as seen in the above examples, we need our class to extend the main `Dynam0RM` class.
 ```typescript
-import { Dynam0RX } from "dynam0rx" 
+import { Dynam0RM } from "dynam0rm" 
 
-class User extends Dynam0RX {
+class User extends Dynam0RM {
     // All the props here...
 }
 ```
-This allows `User` to inherit all the methods we've seen before and we need to make it work. Think of `Dynam0RX` class as an *abstract* class, not meant to be constructed but only to be extended by other classes. 
-> It is **mandatory** for *Schema*s to extend `Dynam0RX` main class.
+This allows `User` to inherit all the methods we've seen before and we need to make it work. Think of `Dynam0RM` class as an *abstract* class, not meant to be constructed but only to be extended by other classes. 
+> It is **mandatory** for *Schema*s to extend `Dynam0RM` main class.
 
 ### Decorators
 Decorators are a fundamental part of this client. They serve the purpose of defining what is a class and what its properties are for DynamoDB.
 #### Schema
 `@Schema()` is a *class decorator*. It **must** be used on top of a class to declare that the class itself defines a DynamoDB table. This decorator determines how the client will connect to the DynamoDB service and the DynamoDB connection configurations. 
 ```typescript
-import { Schema } from "dynam0rx/decorators"
+import { Schema } from "dynam0rm/decorators"
 
 @Schema()
-class User extends Dynam0RX {
+class User extends Dynam0RM {
     // All the other props...
 }
 ```
@@ -382,7 +382,7 @@ const dynamoDBConfig = {
 } 
 
 @Schema({ tableName: "My Users Table", dynamoDBConfig })
-class User extends Dynam0RX {
+class User extends Dynam0RM {
     // All the other props...
 }
 ```
@@ -391,10 +391,10 @@ class User extends Dynam0RX {
 #### PartitionKey
 `partitionKey` decorator has to be applied on top of only one of a *Schema* decorated class's properties, defining its *partition key*. Using this decorator is **mandatory** as a *partition key* is necessary for constructing a DynamoDB *Primary key*
 ```typescript
-import { Schema, partitionKey } from "dynam0rx/decorators"
+import { Schema, partitionKey } from "dynam0rm/decorators"
 
 @Schema()
-class User extends Dynam0RX {
+class User extends Dynam0RM {
     @partitionKey
     id: number
     // All the other props...
@@ -404,10 +404,10 @@ With this setup, instances from this table can be retrieved by just calling thei
 #### SortKey
 The sort key is an optional part of a DynamoDB *Primary key* so using this decorator is **optional** as well.
 ```typescript
-import { Schema, partitionKey, sortKey } from "dynam0rx/decorators"
+import { Schema, partitionKey, sortKey } from "dynam0rm/decorators"
 
 @Schema()
-class Article extends Dynam0RX {
+class Article extends Dynam0RM {
     @partitionKey
     author: string
     @sortKey
@@ -419,13 +419,13 @@ To retrieve instances from this table, we will need to call both `author` and `t
 ### Conditions
 Earlier on this guide, we have seen the use of conditions on some methods in the form of functions. To be used, these functions need to be imported from the package's `/operators` path
 ```typescript
-import { equal } from "dynam0rx/operators"
+import { equal } from "dynam0rm/operators"
 
 await something.delete({ id: equal(119) })
 ```
 They can also be imported as an object to help keep the `import` section of your files clean
 ```typescript
-import operators from "dynam0rx/operators"
+import operators from "dynam0rm/operators"
 
 await something.delete({
     id: operators.equal(119),

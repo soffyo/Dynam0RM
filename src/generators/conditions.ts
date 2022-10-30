@@ -1,8 +1,9 @@
-import { QuerySymbols, ConditionSymbols } from "src/private/symbols";
-import { formatAttributeType} from "src/definitions/attributes";
-import * as symbols from "src/private/symbols"
+import { QuerySymbols, ConditionSymbols } from 'src/private/symbols'
+import {formatAttributeType} from 'src/definitions/attributes'
+import * as symbols from 'src/private/symbols'
+import {JSObject} from "src/types";
 
-export function handleConditions(key: symbol, value: any, path: string[], attributeValues: {[k:string]: any}, conditionExpressions: string[]) {
+export function handleConditions(key: symbol, value: any, path: string[], attributeValues: JSObject<string>, conditionExpressions: string[]) {
     const attributeName = '#' + path.join(".#")
     const attributeValue = (...suffixes: (string|number)[]) => {
         let value = ':' + path.join("_")
@@ -26,7 +27,7 @@ export function handleConditions(key: symbol, value: any, path: string[], attrib
                     _attributeValues.push(_attributeValue)
                     index++
                 }
-                conditionExpressions.push(`(${attributeName} BETWEEN ${_attributeValues[0]} AND ${_attributeValues[1]})`)
+                conditionExpressions.push(`${attributeName} BETWEEN ${_attributeValues[0]} AND ${_attributeValues[1]}`)
             }
             break
         case (symbols.contains):
@@ -35,7 +36,7 @@ export function handleConditions(key: symbol, value: any, path: string[], attrib
                 for (const v of value) {
                     const _attributeValue = attributeValue(index, 'contains')
                     Object.defineProperty(attributeValues, _attributeValue, { value: v, enumerable: true })
-                    conditionExpressions.push(`(contains(${attributeName}, ${_attributeValue}))`)
+                    conditionExpressions.push(`contains(${attributeName}, ${_attributeValue})`)
                     index++
                 }
             }
@@ -43,7 +44,7 @@ export function handleConditions(key: symbol, value: any, path: string[], attrib
         case (symbols.beginsWith): {
             const _attributeValue = attributeValue('beginsWith')
             Object.defineProperty(attributeValues, _attributeValue, { value, enumerable: true })
-            conditionExpressions.push(`(${Symbol.keyFor(key)}(${attributeName}, ${_attributeValue}))`)
+            conditionExpressions.push(`${Symbol.keyFor(key)}(${attributeName}, ${_attributeValue})`)
             break
         }
         case (symbols.into):
@@ -56,20 +57,20 @@ export function handleConditions(key: symbol, value: any, path: string[], attrib
                     _attributeValues.push(_attributeValue)
                     index++
                 }
-                conditionExpressions.push(`(${attributeName} IN ${_attributeValues.join(", ")})`)
+                conditionExpressions.push(`${attributeName} IN (${_attributeValues.join(', ')})`)
             }
             break
         case symbols.attributeExists:
             if (value) {
-                conditionExpressions.push(`(attribute_exists(${attributeName}))`)
+                conditionExpressions.push(`attribute_exists(${attributeName})`)
             } else {
-                conditionExpressions.push(`(attribute_not_exists(${attributeName}))`)
+                conditionExpressions.push(`attribute_not_exists(${attributeName})`)
             }
             break
         case symbols.attributeType: {
             const _attributeValue = attributeValue('attributeType')
             Object.defineProperty(attributeValues, _attributeValue, { value: formatAttributeType(value), enumerable: true })
-            conditionExpressions.push(`(attribute_type(${attributeName}, ${_attributeValue}))`)
+            conditionExpressions.push(`attribute_type(${attributeName}, ${_attributeValue})`)
             break
         }
         case symbols.size:
@@ -78,7 +79,7 @@ export function handleConditions(key: symbol, value: any, path: string[], attrib
         default: {
             const _attributeValue = attributeValue('condition')
             Object.defineProperty(attributeValues, _attributeValue, { value, enumerable: true })
-            conditionExpressions.push(`(${attributeName} ${Symbol.keyFor(key)} ${_attributeValue})`)
+            conditionExpressions.push(`${attributeName} ${Symbol.keyFor(key)} ${_attributeValue}`)
             break
         }
     }

@@ -9,7 +9,11 @@ export function Connection(input?: {dynamoDBConfig?: DynamoDBClientConfig, table
         const dynamodb = new DynamoDBClient({ ...input?.dynamoDBConfig })
         const tableName = input?.tableName?.replace(/[^a-zA-Z0-9\-._]/g, '')
         TablesWM(ctx).set(symbol.tableName, tableName ?? ctx.name)
-        TablesWM(ctx).set(symbol.client, DynamoDBDocumentClient.from(dynamodb, {marshallOptions: {convertClassInstanceToMap: true}}))
         TablesWM(ctx).set(symbol.dynamodb, dynamodb)
+        TablesWM(ctx).set(symbol.client, DynamoDBDocumentClient.from(dynamodb, {
+            marshallOptions: {
+                convertClassInstanceToMap: true
+            }
+        }))
     }
 }

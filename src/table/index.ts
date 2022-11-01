@@ -1,7 +1,7 @@
-import {CreateTable, Drop, Put, BatchPut, Delete, Scan, Save, Query, BatchGet} from 'src/commands'
-import {PrimaryKeyObject, Condition, CreateTableConfig, Class, ValidRecord, QueryObject} from 'src/types'
+import {DynamoDBDocumentClient} from '@aws-sdk/lib-dynamodb'
+import {CreateTable, Drop, Put, BatchPut, Delete, Scan, Save, Query, BatchGet, Update, BatchDelete} from 'src/commands'
+import {Condition, CreateTableConfig, Class, ValidRecord, QueryObject, PrimaryKeys, Update as TUpdate} from 'src/types'
 import {extractKey, excludeKey, generateKeys, proxy} from './functions'
-import {primaryKeyMethods, filterMethods} from './methods'
 import {validateType, validateKey, Dynam0RMError} from 'src/validation'
 
 export abstract class Dynam0RMTable {
@@ -11,6 +11,7 @@ export abstract class Dynam0RMTable {
 
     public static make<T extends Dynam0RMTable>(this: new (...args: any) => T, init: ValidRecord<T>) {
         const instance = new this()
+
         for (const [key, value] of Object.entries(init)) {
             if (validateType(value)) Object.defineProperty(instance, key, {
                 value,
@@ -23,15 +24,33 @@ export abstract class Dynam0RMTable {
         return instance
     }
 
-    public static keys<T extends Dynam0RMTable>(this: new (...args: any) => T, ...keys: T[] | [PrimaryKeyObject] | string[] | number[]) {
-        let generatedKeys = generateKeys(this, keys).filter(k => {
+    public static keys<T extends Dynam0RMTable>(this: new (...args: any) => T, ...keys: PrimaryKeys<T>) {
+        const generatedKeys = generateKeys(this, keys).filter(k => {
             if (validateKey(this, k)) return true
             if (k) Dynam0RMError.invalidKey(this, k)
             return false
         })
+        const conditions: Condition<T>[] = []
+        const methods = {
+            update: (update: TUpdate<T>) => Promise.all(generatedKeys.map(key =>
+                new Update(this, key, update, conditions).send())),
+            delete: () => {
+                if (conditions.length) return Promise.all(generatedKeys.map(key =>
+                    new Delete(this, key, conditions).send()))
+                else return new BatchDelete(this, generatedKeys).send()
+            }
+        }
+        const or = (condition: Condition<T>) => {
+            conditions.push(condition)
+            return {or, ...methods}
+        }
         return {
             get: () => new BatchGet(this, generatedKeys).send(),
-            ...primaryKeyMethods({constructor: this, keys: generatedKeys})
+            if(condition: Condition<T>) {
+                conditions.push(condition)
+                return {or, ...methods}
+            },
+            ...methods,
         }
     }
 
@@ -50,7 +69,11 @@ export abstract class Dynam0RMTable {
         return new Drop(this).send()
     }
 
-    public static putItems<T extends Dynam0RMTable>(this: new (...args: any) => T, ...elements: T[]) {
+    public static put<T extends Dynam0RMTable>(this: new (...args: any) => T, ...elements: T[]) {
+        return Promise.all(elements.map(e => new Put(this, e).send()))
+    }
+
+    public static unsafePut<T extends Dynam0RMTable>(this: new (...args: any) => T, ...elements: T[]) {
         return new BatchPut(this, elements).send()
     }
 
@@ -59,8 +82,19 @@ export abstract class Dynam0RMTable {
     }
 
     public static filter<T extends Dynam0RMTable>(this: new (...args: any) => T, filter: Condition<T>) {
-        const conditions: Condition<T>[] = [filter]
-        return filterMethods(this, conditions)
+        const conditions = [filter]
+        const exec = {
+            query: (hashValue: string | number, query?: QueryObject<string | number>) => ({
+                scanForward: (Limit?: number) => new Query(this, hashValue, query, conditions, {ScanIndexForward: true, Limit}).send(),
+                scanBackward: (Limit?: number) => new Query(this, hashValue, query, conditions, {ScanIndexForward: false, Limit}).send()
+            }),
+            scan: (Limit?: number) => new Scan<T>(this, conditions, {Limit}).send(),
+        }
+        const or = (condition: Condition<T>) => {
+            conditions.push(condition)
+            return {or, ...exec}
+        }
+        return {or, ...exec}
     }
 
     public save<T extends Dynam0RMTable>(this: T, {overwrite = true}: {overwrite?: boolean} = {}) {

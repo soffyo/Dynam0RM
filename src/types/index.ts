@@ -1,5 +1,6 @@
 import {AttributeTypes} from 'src/definitions/attributes'
 import * as symbols from 'src/private/symbols'
+import {Dynam0RMTable} from "src/table";
 
 // Utility types
 export type Class<T={}> = { new(...args: any[]): T }
@@ -28,6 +29,7 @@ export type PrimaryKey<T> = Valueof<{
 /** String property name represents the HashKey (numbers must be declared as strings, e.g '1') and its value(s) represent
     the RangeKey(s). This object must be declared in the following format: `{ [HashKeyValue]: RangeKeyValue | RangeKeyValues[] }`*/
 export type PrimaryKeyObject = {[k:string]: string | string[]} | {[k:string]: number | number[]}
+export type PrimaryKeys<T extends Dynam0RMTable> = T[] | [PrimaryKeyObject] | string[] | number[]
 export type AllowedScalar = string | number | boolean | Set<string | number> | Array<any> | null | undefined
 export type ValidRecord<T> = { [K in keyof OmitMethods<T>]: ValidRecord<T[K]> }
 
@@ -41,7 +43,7 @@ type ConditionTypes<K extends symbol, V> =
     K extends typeof symbols.size ? Size :
     V
 
-type ObjectConditions = { [symbols.attributeExists]: boolean } | { [symbols.attributeType]: AttributeTypes }
+type ObjectConditions = {[symbols.attributeExists]: boolean} | {[symbols.attributeType]: AttributeTypes}
 
 export type Condition<T> = {
     [K in keyof OmitMethods<T>]?:
@@ -77,6 +79,6 @@ export type Update<T> = {
         T[K] extends number ? { [K in (typeof symbols.update.increment | typeof symbols.update.decrement)]: number } :
         never
     )
-    : T[K] extends JSObject ? Update<T[K]> | typeof symbols.remove
+    : T[K] extends JSObject ? typeof symbols.remove | {[symbols.overwrite]: T[K]} | Update<T[K]>
     : never
 }

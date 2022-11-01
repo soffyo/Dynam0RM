@@ -2,8 +2,8 @@ import {KeySchemaElement, AttributeDefinition, GlobalSecondaryIndex, LocalSecond
 import {Class, JSObject, PrimaryKey} from 'src/types'
 import {TablesWM} from 'src/private'
 import {Dynam0RMTable} from 'src/table'
-import * as symbols from 'src/private/symbols'
 import {Dynam0RMError} from "src/validation/error";
+import * as symbols from 'src/private/symbols'
 
 export function validateKey<T extends Dynam0RMTable>(constructor: Class<T>, key: any, indexName?: string): key is PrimaryKey<T> {
     let keySchema = TablesWM(constructor).get<KeySchemaElement[]>(symbols.keySchema)

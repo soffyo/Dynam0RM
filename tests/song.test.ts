@@ -49,13 +49,13 @@ test('Song', async function () {
         songs.push(song)
     }
 
-    const batchPut = await Song.putItems(...songs)
+    const batchPut = await Song.put(...songs)
     await Song.make({artist: 'Nino', title: 'Popcorn & Patatine', album: 'Nu Jeans & Na Maglietta'}).save({overwrite: false})
     await Song.make({artist: 'RHCP', title: 'Scar Tissue', album: 'Californication', year: 1998}).save({overwrite: false})
 
-    const k = await Song.query('Michael Jackson', BeginsWith('T')).scanForward()
+    const k = await Song.keys({'Michael Jackson': 'Jam'}).if({album: Contains('Dadsf')}).update({year: Increment(110)})
 
-    console.dir(k.output, {depth: null})
+    console.dir(k, {depth: null})
 
     await Song.destroy()
 })

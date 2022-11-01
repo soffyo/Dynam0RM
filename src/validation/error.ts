@@ -36,8 +36,7 @@ export class Dynam0RMError extends Error {
     }
 
     public static log<T extends Dynam0RMTable>(target: Class<T>, caller: Function | {name: string}, error: Error) {
-        const tableName = TablesWM(target).get<string>(symbols.tableName) ?? target.name
         const className = target.name
-        console.error(`Dynam0RM: [Class: ${className}; Function: ${caller.name}] -> ${error.name} -> ${error.message}`)
+        console.warn(`Dynam0RM: [Class: ${className}; Function: ${caller.name}] -> ${error.name} -> ${error.message}`)
     }
 }

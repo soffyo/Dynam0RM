@@ -21,7 +21,10 @@ export class CreateTable extends SimpleCommand<CreateTableCommandInput, CreateTa
         this.command = new CreateTableCommand({
             BillingMode: config?.throughput ? 'PROVISIONED' : 'PAY_PER_REQUEST',
             TableClass: config?.infrequent ? 'STANDARD_INFREQUENT_ACCESS' : 'STANDARD',
-            ProvisionedThroughput: config?.throughput ? { ReadCapacityUnits: config.throughput.read, WriteCapacityUnits: config.throughput.write } : undefined,
+            ProvisionedThroughput: config?.throughput ? {
+                ReadCapacityUnits: config.throughput.read,
+                WriteCapacityUnits: config.throughput.write
+            } : undefined,
             TableName: this.tableName,
             KeySchema: this.keySchema,
             AttributeDefinitions: this.attributeDefinitions,

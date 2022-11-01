@@ -6,14 +6,14 @@ import {Dynam0RMTable} from "src/table"
 
 export class Delete <T extends Dynam0RMTable> extends SimpleCommand<DeleteCommandInput, DeleteCommandOutput> {
     protected command: DeleteCommand
-    public constructor(target: Class<T>, Key: PrimaryKey<T>, condition?: Condition<T>[]) {
+    public constructor(target: Class<T>, Key: PrimaryKey<T>, conditions?: Condition<T>[]) {
         super(target)
         let ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions: string[][] | undefined
-        if (condition?.length) {
+        if (conditions?.length) {
             ExpressionAttributeNames = {}
             ExpressionAttributeValues = {}
             ConditionExpressions = []
-            iterateConditionsArray(condition, [], ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions)
+            iterateConditionsArray(conditions, [], ExpressionAttributeNames, ExpressionAttributeValues, ConditionExpressions)
         }
         this.command = new DeleteCommand({
             Key,
@@ -23,6 +23,5 @@ export class Delete <T extends Dynam0RMTable> extends SimpleCommand<DeleteComman
             ConditionExpression: ConditionExpressions?.length ? ConditionExpressions?.map(block => `(${block.join(' AND ')})`).join(' OR ') : undefined,
             ReturnValues: 'ALL_OLD',
         })
-        console.log(this.command.input)
     }
 }

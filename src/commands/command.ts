@@ -13,7 +13,7 @@ export class Response<T> {
     public error?: Error
 }
 
-export abstract class Command<O extends ServiceOutputTypes> {
+export abstract class Command<I extends ServiceInputTypes, O extends ServiceOutputTypes> {
     protected abstract readonly response: Response<O | O[]>
 
     private readonly PM = TablesWM(this.target)
@@ -32,12 +32,14 @@ export abstract class Command<O extends ServiceOutputTypes> {
 
     public abstract send(): Promise<typeof this.response>
 
+    public abstract commandInput(): I | I[]
+
     protected logError(error: Error) {
         Dynam0RMError.log(this.target, this.constructor, error)
     }
 }
 
-export abstract class SimpleCommand<I extends ServiceInputTypes, O extends ServiceOutputTypes> extends Command<O> {
+export abstract class SimpleCommand<I extends ServiceInputTypes, O extends ServiceOutputTypes> extends Command<I, O> {
     protected abstract readonly command: any
 
     protected readonly response = new Response<O>()
@@ -57,9 +59,13 @@ export abstract class SimpleCommand<I extends ServiceInputTypes, O extends Servi
         }
         return this.response
     }
+
+    public commandInput(): I {
+        return this.command.input
+    }
 }
 
-export abstract class BatchCommand<I extends ServiceInputTypes, O extends ServiceOutputTypes> extends Command<O> {
+export abstract class BatchCommand<I extends ServiceInputTypes, O extends ServiceOutputTypes> extends Command<I, O> {
     protected abstract readonly commands: any[]
 
     protected readonly response = new Response<O[]>()
@@ -86,5 +92,9 @@ export abstract class BatchCommand<I extends ServiceInputTypes, O extends Servic
             this.logError(error)
         }
         return this.response
+    }
+
+    public commandInput(): I[] {
+        return this.commands.map(c => c.input).flat(Infinity)
     }
 }

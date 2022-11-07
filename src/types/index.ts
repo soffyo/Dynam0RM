@@ -1,6 +1,6 @@
 import {AttributeTypes} from 'src/definitions/attributes'
 import * as symbols from 'src/private/symbols'
-import {Dynam0RMTable} from "src/table";
+import {Dynam0RMTable} from 'src/table'
 
 // Utility types
 export type Class<T={}> = { new(...args: any[]): T }
@@ -82,3 +82,5 @@ export type Update<T> = {
     : T[K] extends JSObject ? typeof symbols.remove | {[symbols.overwrite]: T[K]} | Update<T[K]>
     : never
 }
+
+export * from './interfaces'

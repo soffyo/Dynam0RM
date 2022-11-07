@@ -1,7 +1,5 @@
-import {Class, JSObject} from "src/types"
-import {TablesWM} from "src/private";
-import * as symbols from "src/private/symbols";
-import {Dynam0RMTable} from "src/table";
+import {Class, JSObject} from 'src/types'
+import {Dynam0RMTable} from 'src/table'
 
 type Caller = Function | {name: string}
 

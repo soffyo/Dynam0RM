@@ -1,6 +1,9 @@
 import {Buffer, Blob} from 'buffer'
+
 import {isObject} from 'src/utils'
 import {remove} from 'src/private/symbols'
+
+// TODO: Check which Buffer types are valid for DynamoDB
 
 export function validateType(value: any): boolean {
     switch (typeof value) {

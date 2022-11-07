@@ -1,16 +1,15 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES2015",
+        "module": "CommonJS",
+        "target": "ES2018",
         "lib": ["ES2018"],
         "declaration": true,
         "strict": true,
-        "baseUrl": ".",
         "allowJs": true,
         "paths": {
             "src/*": ["./src/*"]
         }
     },
     "include": ["src"],
-    "exclude": ["node_modules"],
+    "exclude": ["node_modules"]
 }

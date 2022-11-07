@@ -1,9 +1,10 @@
-import {BatchWriteCommand, BatchWriteCommandInput, BatchWriteCommandOutput} from "@aws-sdk/lib-dynamodb"
-import {BatchCommand} from "./command"
-import {Class, PrimaryKey} from "src/types"
-import {Dynam0RMTable} from "src/table";
+import {BatchWriteCommand, BatchWriteCommandInput, BatchWriteCommandOutput} from '@aws-sdk/lib-dynamodb'
 
-export class BatchDelete<T extends Dynam0RMTable> extends BatchCommand<BatchWriteCommandInput, BatchWriteCommandOutput> {
+import {BatchCommand} from './command'
+import {Class, PrimaryKey} from 'src/types'
+import {Dynam0RMTable} from 'src/table'
+
+export class BatchDeleteMono<T extends Dynam0RMTable> extends BatchCommand<BatchWriteCommandInput, BatchWriteCommandOutput> {
     protected commands: BatchWriteCommand[] = []
 
     constructor(target: Class<T>, Keys: PrimaryKey<T>[]) {

@@ -1,4 +1,4 @@
-import * as symbols from "src/private/symbols"
+import * as symbols from 'src/private/symbols'
 
 export function handleUpdates(object: {[key: symbol]: any}, paths: string[], attributeValues: {[k:string]: any }, updateExpressions: { [K in ("add"|"delete"|"remove"|"update")]: string[] }) {
     let attributeName = `#${paths.join('.#')}`

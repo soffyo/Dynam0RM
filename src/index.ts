@@ -1,45 +1,68 @@
-import {Dynam0RMTable} from 'src/table'
-import {LocalSecondaryIndex, GlobalSecondaryIndex, IndexProps, GlobalIndexProps} from 'src/decorators/property/indexes'
 import {DynamoDBClient, DynamoDBClientConfig} from '@aws-sdk/client-dynamodb'
 import {DynamoDBDocumentClient} from '@aws-sdk/lib-dynamodb'
-import {Transaction} from 'src/commands/transaction/transactwrite'
-import {Connection} from 'src/decorators/class/altconnection'
-import * as Decorators from 'src/decorators'
+
+import {Dynam0RMTable} from 'src/table'
+import {TransactWrite, BatchWrite, BatchGet} from 'src/commands'
+import {Connection} from 'src/decorators/class/connection'
 
 export class Dynam0RMClient {
-    public readonly Table = Dynam0RMTable
-    public readonly Decorators = Decorators
-
+    readonly #client: DynamoDBClient
     readonly #documentClient: DynamoDBDocumentClient
+    readonly #config: DynamoDBClientConfig
+    readonly #connection: (config?: {TableName?: string}) => ReturnType<typeof Connection>
+
+    public get Client() {
+        return this.#client
+    }
+    public get DocumentClient() {
+        return this.#documentClient
+    }
+    public get Connection() {
+        return this.#connection
+    }
 
     public constructor(dynamoDBConfig: DynamoDBClientConfig) {
-        const client = new DynamoDBClient(dynamoDBConfig)
-        const documentClient = DynamoDBDocumentClient.from(client, {
+        this.#config = dynamoDBConfig
+        this.#client = new DynamoDBClient(this.#config)
+        this.#documentClient = DynamoDBDocumentClient.from(this.#client, {
             marshallOptions: {
                 convertClassInstanceToMap: true,
-                removeUndefinedValues: true,
+                removeUndefinedValues: true
             }
         })
-        this.Decorators = {
-            ...Decorators,
-            Connection: ({tableName}: {tableName?: string} = {}) => Connection({
-                client,
-                documentClient,
-                tableName
-            })
-        }
-        this.#documentClient = documentClient
+
+        this.#connection = ({TableName}: {TableName?: string} = {}) => Connection({
+            clientConfig : this.#config,
+            client : this.#client,
+            documentClient : this.#documentClient,
+            tableName: TableName
+        })
     }
 
-    public static createLocalIndex<T extends Dynam0RMTable>(props?: IndexProps<T>) {
-        return new LocalSecondaryIndex<T>(props)
+    public listTables() {
+        // TODO
     }
 
-    public static createGlobalIndex<T extends Dynam0RMTable>(props?: GlobalIndexProps<T>) {
-        return new GlobalSecondaryIndex<T>(props)
+    public createWriteTransaction() {
+        return new TransactWrite(this.#documentClient)
     }
 
-    public createTransaction() {
-        return new Transaction(this.#documentClient)
+    public createReadTransaction() {
+        // TODO
+    }
+
+    public createBatchWrite() {
+        return new BatchWrite(this.#documentClient, this.#config)
+    }
+
+    public createBatchGet() {
+        return new BatchGet(this.#documentClient)
+    }
+
+    public destroy() {
+        this.#client.destroy()
+        this.#documentClient.destroy()
     }
 }
+
+export {Dynam0RMTable as Table}

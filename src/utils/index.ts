@@ -1,21 +1,15 @@
 import { JSObject } from 'src/types'
 
-/** Splits an array into arrays of lenght defined by @param: `maxLength`  */
-export function splitArray<T>(array: T[], maxLength: number): T[][] {
-    const main: T[][] = []
-    void (function split(array: T[]): void {
-        const first = array.slice(0, maxLength)
-        const rest = array.slice(maxLength)
-        main.push(first)
-        if (rest.length > maxLength) {
-            return split(rest)
-        } else {
-            if (rest.length > 0) {
-                main.push(rest)
-            }
+/** Splits an array into arrays of length defined by @param: `maxLength`  */
+export function splitToChunks<T>(array: T[], maxLength: number): T[][] {
+    if (array.length > maxLength) {
+        const chunks: T[][] = []
+        for (let i = 0; i < array.length; i += maxLength) {
+            chunks.push(array.slice(i, i + maxLength))
         }
-    })(array)
-    return main
+        return chunks
+    }
+    return [array]
 }
 
 /** Extracts all the property keys from an object and its nested object properties to an array */
@@ -98,4 +92,9 @@ export function removeUndefined<T extends JSObject>(target: T) {
         }
     }
     return target
+}
+
+export function makeRange(from: number, to: number) {
+    if (to > from) return [...Array(++to - from).keys()].map(i => i + from)
+    return []
 }

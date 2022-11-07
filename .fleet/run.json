@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "command",
+            "name": "batch",
+            "program": "./node_modules/jest/bin/jest.js",
+            "args": ["batchwrite.test.ts"]
+        }
+    ]
+}

@@ -1,6 +1,6 @@
 import {ScanCommand, ScanCommandInput, ScanCommandOutput} from "@aws-sdk/lib-dynamodb"
-import {SimpleCommand} from "./command"
-import {iterateConditionsArray} from "src/iterators"
+import {PaginatedCommand} from './command'
+import {iterateConditionsArray} from 'src/iterators'
 import {Class, Condition} from 'src/types'
 import {Dynam0RMTable} from 'src/table'
 
@@ -9,7 +9,7 @@ interface ScanConfig {
     IndexName?: string
 }
 
-export class Scan <T extends Dynam0RMTable> extends SimpleCommand<ScanCommandInput, ScanCommandOutput> {
+export class Scan <T extends Dynam0RMTable> extends PaginatedCommand<ScanCommandInput, ScanCommandOutput> {
     protected readonly command: ScanCommand
     public constructor(target: Class<T>, filter?: Condition<T>[], {Limit, IndexName}: ScanConfig = {}) {
         super(target)

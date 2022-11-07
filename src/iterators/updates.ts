@@ -1,8 +1,8 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb"
 import { isObject } from 'src/utils'
-import { handleUpdates } from "src/generators"
-import { JSObject, PrimaryKey } from "src/types"
-import {isUpdateSymbol} from "src/validation";
+import { handleUpdates } from 'src/generators'
+import { JSObject, PrimaryKey } from 'src/types'
+import {isUpdateSymbol} from 'src/validation'
 import * as symbols from 'src/private/symbols'
 
 export function iterateUpdates(target: JSObject, paths: string[], Key: PrimaryKey<any>, TableName: string, Commands: UpdateCommand[]) {
@@ -12,8 +12,8 @@ export function iterateUpdates(target: JSObject, paths: string[], Key: PrimaryKe
         add: [], delete: [], remove: [], update: [],
     }
     for (const [key, value] of Object.entries(target)) {
-        Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
         let path = [key]
+        Object.defineProperty(ExpressionAttributeNames, `#${key}`, { value: key, enumerable: true })
         if (paths.length) {
             path = [...paths, key]
             for (const k of paths) {

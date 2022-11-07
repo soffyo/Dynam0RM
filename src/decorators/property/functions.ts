@@ -1,7 +1,8 @@
-import {AttributeDefinition} from "@aws-sdk/client-dynamodb"
-import {createWeakMap} from "src/private/weakmaps"
-import {checkEquality} from "src/utils"
+import {AttributeDefinition} from '@aws-sdk/client-dynamodb'
 import 'reflect-metadata'
+
+import {createWeakMap} from 'src/private/weakmaps'
+import {checkEquality} from 'src/utils'
 
 export function addToPrivateMapArray(pm: ReturnType<typeof createWeakMap>, constructor: object, key: string | symbol, value: any, index?: number) {
     if (!pm(constructor).has(key)) {

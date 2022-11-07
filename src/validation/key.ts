@@ -1,8 +1,9 @@
 import {KeySchemaElement, AttributeDefinition, GlobalSecondaryIndex, LocalSecondaryIndex} from '@aws-sdk/client-dynamodb'
-import {Class, JSObject, PrimaryKey} from 'src/types'
+
+import {Class, PrimaryKey} from 'src/types'
 import {TablesWM} from 'src/private'
 import {Dynam0RMTable} from 'src/table'
-import {Dynam0RMError} from "src/validation/error";
+import {Dynam0RMError} from 'src/validation/error'
 import * as symbols from 'src/private/symbols'
 
 export function validateKey<T extends Dynam0RMTable>(constructor: Class<T>, key: any, indexName?: string): key is PrimaryKey<T> {

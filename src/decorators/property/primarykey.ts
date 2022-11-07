@@ -1,4 +1,5 @@
 import { KeySchemaElement, LocalSecondaryIndex } from '@aws-sdk/client-dynamodb'
+
 import {attributeDefinition, addToPrivateMapArray, getType} from './functions'
 import {Dynam0RMError} from 'src/validation'
 import {TablesWM} from 'src/private'
@@ -22,7 +23,7 @@ export function HashKey(prototype: any, key: string) {
         KeyType: 'HASH'
     }
     if (localIndexes) for (const index of localIndexes) {
-        if (index.KeySchema) index.KeySchema[0].AttributeName = key
+        if (index.KeySchema?.length) index.KeySchema[0].AttributeName = key
     }
     addAttribute(HashKey, prototype, key, keySchemaElement, 0)
 }

@@ -1,11 +1,11 @@
 import {GlobalSecondaryIndex as ISecondaryIndex} from '@aws-sdk/client-dynamodb'
+
 import {attributeDefinition, addToPrivateMapArray, getType} from './functions'
-import { Response } from 'src/commands/command'
 import { OmitMethods } from 'src/types'
 import { TablesWM, IndexesWM } from 'src/private'
+import {Dynam0RMTable} from 'src/table'
+import {Dynam0RMError} from 'src/validation'
 import * as symbols from 'src/private/symbols'
-import {Dynam0RMTable} from "src/table";
-import {Dynam0RMError} from "src/validation";
 
 type PropertyDecorator = (prototype: any, key: string) => void
 
@@ -44,19 +44,18 @@ abstract class SecondaryIndex<T extends Dynam0RMTable> {
                 WriteCapacityUnits: props.throughput.write
             }
         }
-        secondaryIndex.Projection = (function() {
-            let NonKeyAttributes: string[] = []
-            let ProjectionType: 'ALL'|'INCLUDE'|'KEYS_ONLY' = 'ALL'
-            if (props?.attributes) {
-                if (Array.isArray(props.attributes) && props.attributes.length > 0) {
-                    ProjectionType = 'INCLUDE'
-                    NonKeyAttributes = props.attributes as string[]
-                } else if (props.attributes === 'keys-only') {
-                    ProjectionType = 'KEYS_ONLY'
-                }
+        secondaryIndex.Projection = {
+            ProjectionType: 'ALL',
+            NonKeyAttributes: []
+        }
+        if (props?.attributes) {
+            if (Array.isArray(props.attributes) && props.attributes.length > 0) {
+                secondaryIndex.Projection.ProjectionType = 'INCLUDE'
+                secondaryIndex.Projection.NonKeyAttributes = props.attributes as string[]
+            } else if (props.attributes === 'keys-only') {
+                secondaryIndex.Projection.ProjectionType = 'KEYS_ONLY'
             }
-            return { ProjectionType, NonKeyAttributes }
-        })()
+        }
         IndexesWM(this).set<boolean>('isValid', false)
         IndexesWM(this).set<PropertyDecorator>(finalizeSYM, (prototype, key) => {
             const type = getType(prototype, key)
@@ -71,12 +70,17 @@ abstract class SecondaryIndex<T extends Dynam0RMTable> {
 }
 
 export class LocalSecondaryIndex <T extends Dynam0RMTable> extends SecondaryIndex<T> {
-    public readonly rangeKey: PropertyDecorator
+    readonly #rangeKey: PropertyDecorator
+
+    public get RangeKey() {
+        return this.#rangeKey
+    }
+
     public constructor(props?: IndexProps<T>) {
         super('local', props)
         const secondaryIndex = IndexesWM(this).get<ISecondaryIndex>(secondaryIndexSYM)
         const finalize = IndexesWM(this).get<PropertyDecorator>(finalizeSYM)!
-        this.rangeKey = (prototype, key) => {
+        this.#rangeKey = (prototype, key) => {
             const keySchema = TablesWM(prototype.constructor).get(symbols.keySchema)
             IndexesWM(this).get<ISecondaryIndex>(secondaryIndexSYM)?.KeySchema?.push(
                 {
@@ -95,8 +99,16 @@ export class LocalSecondaryIndex <T extends Dynam0RMTable> extends SecondaryInde
 }
 
 export class GlobalSecondaryIndex <T extends Dynam0RMTable> extends SecondaryIndex<T> {
-    public readonly hashKey: PropertyDecorator
-    public readonly rangeKey: PropertyDecorator
+    readonly #hashKey: PropertyDecorator
+    readonly #rangeKey: PropertyDecorator
+
+    public get HashKey() {
+        return this.#hashKey
+    }
+    public get RangeKey() {
+        return this.#rangeKey
+    }
+
     constructor(props?: GlobalIndexProps<T>) {
         super('global', props)
         const secondaryIndex = IndexesWM(this).get<ISecondaryIndex>(secondaryIndexSYM)!
@@ -115,12 +127,12 @@ export class GlobalSecondaryIndex <T extends Dynam0RMTable> extends SecondaryInd
             }
             if (!isEqual && IndexesWM(this).get<boolean>('isValid')) addToPrivateMapArray(TablesWM, prototype.constructor, symbols.globalIndexes, secondaryIndex)
         }
-        this.hashKey = addIndex(0)
-        this.rangeKey = addIndex(1)
+        this.#hashKey = addIndex(0)
+        this.#rangeKey = addIndex(1)
     }
 }
 
-export function Local<T = any>(name: string) {
+export function Local<T>(name: string) {
     return new LocalSecondaryIndex({ name })
 }
 

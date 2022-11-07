@@ -1,12 +1,15 @@
-import {Dynam0RM} from "../src"
-import * as dynamoDBConfig from "./dbconfig.json"
-import 'src/operators'
+/**
+ * @jest-environment ./tests/dynam0rm.env.ts
+ */
+import {Dynam0RMClient, Table} from '../src'
+import {HashKey, RangeKey} from 'src/decorators/property/primarykey'
+import {Between} from 'src/operators'
+import * as config from './dbconfig.json'
 
+const Dynam0RM = new Dynam0RMClient(config)
 
-const {Connection, HashKey, RangeKey} = Dynam0RM.Decorators
-
-@Connection({ dynamoDBConfig })
-class Test extends Dynam0RM.Table {
+@Dynam0RM.Connection()
+class Test extends Table {
     @HashKey
     readonly name?: 'slug' = 'slug'
     @RangeKey
@@ -14,11 +17,12 @@ class Test extends Dynam0RM.Table {
     content?: string
 }
 
-test("QUERY", async function() {
-    const items = new Array(1000).fill(0).map((item, index) => Test.make({id: index, content: `This is the content n. ${index}`}))
-    await Test.createTable()
-    await Test.putItems(...items)
-    const query = await Test.keys({slug: '100'}).get()
-    console.log(query.output)
-    await Test.destroy()
+const items = new Array(10).fill(0).map((item, index) =>
+    Test.make({id: index, content: `This is the content n. ${index}`}))
+
+test('Query', async function() {
+    await Test.create()
+    await Test.batchPut(...items)
+
+    await Test.query('slug', Between(10, 20)).scanBackward()
 })

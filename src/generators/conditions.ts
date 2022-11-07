@@ -1,7 +1,6 @@
-import { QuerySymbols, ConditionSymbols } from 'src/private/symbols'
 import {formatAttributeType} from 'src/definitions/attributes'
+import {JSObject} from 'src/types'
 import * as symbols from 'src/private/symbols'
-import {JSObject} from "src/types";
 
 export function handleConditions(key: symbol, value: any, path: string[], attributeValues: JSObject<string>, conditionExpressions: string[]) {
     const attributeName = '#' + path.join(".#")

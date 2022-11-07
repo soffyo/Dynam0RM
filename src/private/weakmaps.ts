@@ -1,6 +1,6 @@
-export function createWeakMap() {
+export function createWeakMap<T extends object>() {
     const wm = new WeakMap()
-    return function(target: object) {
+    return function(target: T) {
         return {
             get<T = any>(key: string|symbol) {
                 if (wm.has(target)) return wm.get(target)[key] as T

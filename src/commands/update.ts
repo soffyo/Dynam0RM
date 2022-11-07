@@ -6,10 +6,18 @@ import {Dynam0RMTable} from 'src/table'
 
 export class Update<T extends Dynam0RMTable> extends Command<UpdateCommandInput, UpdateCommandOutput> {
     protected readonly commands: UpdateCommand[] = []
-    protected  readonly response = new Response<UpdateCommandOutput>()
+    protected readonly response = new Response<UpdateCommandOutput>()
+
     private readonly ConditionAttributeNames = {}
     private readonly ConditionAttributeValues = {}
     private readonly ConditionExpressions: string[][] = [[]]
+
+    public get commandInput(): UpdateCommandInput[] {
+        return this.commands.map((command, index) => {
+            this.#addConditions(index, command)
+            return command.input
+        })
+    }
 
     public constructor(target: Class<T>, Key: PrimaryKey<T>, update: TUpdate<T>, conditions?: Condition<T>[]) {
         super(target)
@@ -33,7 +41,11 @@ export class Update<T extends Dynam0RMTable> extends Command<UpdateCommandInput,
             command.input.ExpressionAttributeNames = {...command.input.ExpressionAttributeNames, ...this.ConditionAttributeNames}
             command.input.ExpressionAttributeValues = {...command.input.ExpressionAttributeValues, ...this.ConditionAttributeValues}
             command.input.ConditionExpression =
-            `(${this.ConditionExpressions[0].join(' AND ')}) ${AND} ${this.ConditionExpressions.filter((_, i) => i > 0).map(block => `(${block.join(' AND ')})`).join(' OR ')}`
+            `(${this.ConditionExpressions[0].join(' AND ')}) ${AND} ${this.ConditionExpressions.filter((_, i) => {
+                return i > 0
+            }).map(block => {
+                return `(${block.join(' AND ')})`
+            }).join(' OR ')}`
         }
     }
 
@@ -56,12 +68,5 @@ export class Update<T extends Dynam0RMTable> extends Command<UpdateCommandInput,
             this.logError(error)
         }
         return this.response
-    }
-
-    public commandInput(): UpdateCommandInput[] {
-        return this.commands.map((command, index) => {
-            this.#addConditions(index, command)
-            return command.input
-        })
     }
 }

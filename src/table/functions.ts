@@ -1,4 +1,5 @@
 import {KeySchemaElement, AttributeDefinition} from '@aws-sdk/client-dynamodb'
+
 import {validateType} from 'src/validation'
 import {TablesWM} from 'src/private'
 import {isObject} from 'src/utils'

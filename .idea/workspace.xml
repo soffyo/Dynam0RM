@@ -1,28 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="ffa5dc89-6e31-450c-96e8-b3d62e6dae9d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+    <list default="true" id="ffa5dc89-6e31-450c-96e8-b3d62e6dae9d" name="Changes" comment="switch to constructed Dynam0RMClient">
+      <change afterPath="$PROJECT_DIR$/tests/batch.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/Dynam0RM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Dynam0RM.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODO.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jest.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/jest.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/batchdelete.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/batchdelete-mono.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/batchget.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/batchget-mono.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/batchput.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/batchput-mono.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/commands/command.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/command.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/commands/createtable.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/createtable.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/commands/delete.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/delete.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/commands/transactwrite.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/drop.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/drop.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/put.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/put.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/query.ts.bk" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/scan.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/scan.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/transaction/transactwrite.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/transactwrite.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/commands/update.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/update.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decorators/class/altconnection.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/decorators/class/connection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/decorators/class/connection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decorators/property/functions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/decorators/property/functions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decorators/property/indexes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/decorators/property/indexes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decorators/property/primarykey.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/decorators/property/primarykey.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/decorators/property/timetolive.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/decorators/property/timetolive.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/generators/conditions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/generators/conditions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/generators/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/generators/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/generators/names.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/generators/names.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/generators/update.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/generators/update.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/iterators/updates.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/iterators/updates.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/operators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/global-operators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/operators/functions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/operators/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/private/symbols.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/private/symbols.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/private/weakmaps.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/private/weakmaps.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/table/functions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/table/functions.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/table/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/table/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/table/methods/filter.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/table/methods/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/table/methods/primarykey.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/interfaces.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/interfaces.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/validation/error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/validation/error.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/validation/key.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/validation/key.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/javascript.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/validation/type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/validation/type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/mixin.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/query.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/query.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/song.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/song.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/trans.test.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tests/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/types.test.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,11 +63,22 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2Gwd965VagKN1P7MazujkddYR3n" />
   <component name="ProjectLevelVcsManager">
@@ -51,43 +95,107 @@
     "WebServerToolWindowFactoryState": "false",
     "js.last.introduce.type": "CONST",
     "last_opened_file_path": "/Users/soffyo/Dev/Nodejs/Dynam0RM",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs.jest.jest_package": "/Users/soffyo/Dev/Nodejs/Dynam0RM/node_modules/jest",
     "nodejs_package_manager_path": "npm",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "settings.editor.splitter.proportion": "0.18927203",
-    "ts.external.directory.path": "/Users/soffyo/Dev/Nodejs/Dynam0RM/node_modules/typescript/lib"
+    "ts.external.directory.path": "/Users/soffyo/Dev/Nodejs/Dynam0RM/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Jest.client">
-    <configuration name="client" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/commands" />
+      <recent name="$PROJECT_DIR$/src/commands/multithread" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Jest.batchWrite">
+    <configuration name="batchWrite" type="JavaScriptTestRunnerJest">
       <node-interpreter value="project" />
       <node-options value="" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
       <working-dir value="$PROJECT_DIR$" />
+      <jest-options value="--detectOpenHandles" />
       <envs />
-      <scope-kind value="TEST" />
-      <test-file value="$PROJECT_DIR$/tests/mixin.test.ts" />
-      <test-names>
-        <test-name value="client" />
-      </test-names>
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/tests/batch.test.ts" />
       <method v="2" />
     </configuration>
-    <configuration name="test mixin.test.ts" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+    <configuration name="test trans.test.ts" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
       <scripts>
         <script value="test" />
+      </scripts>
+      <arguments value="trans.test.ts" />
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test-db mixin.test.ts" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test-db" />
       </scripts>
       <arguments value="mixin.test.ts" />
       <node-interpreter value="project" />
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="test-db query.test.ts" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test-db" />
+      </scripts>
+      <arguments value="query.test.ts" />
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test-db song.test.ts" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test-db" />
+      </scripts>
+      <arguments value="song.test.ts" />
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test-db trans.test.ts" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test-db" />
+      </scripts>
+      <arguments value="trans.test.ts" />
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Jest.batchWrite" />
+      <item itemvalue="npm.test trans.test.ts" />
+      <item itemvalue="npm.test-db mixin.test.ts" />
+      <item itemvalue="npm.test-db query.test.ts" />
+      <item itemvalue="npm.test-db song.test.ts" />
+      <item itemvalue="npm.test-db trans.test.ts" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Jest.client" />
-        <item itemvalue="npm.test mixin.test.ts" />
+        <item itemvalue="npm.test-db trans.test.ts" />
+        <item itemvalue="npm.test-db song.test.ts" />
+        <item itemvalue="npm.test-db query.test.ts" />
+        <item itemvalue="npm.test-db mixin.test.ts" />
+        <item itemvalue="npm.test trans.test.ts" />
       </list>
     </recent_temporary>
   </component>
@@ -101,8 +209,54 @@
       <updated>1667303427150</updated>
       <workItem from="1667303428219" duration="989000" />
       <workItem from="1667306018204" duration="954000" />
-      <workItem from="1667307909934" duration="9563000" />
+      <workItem from="1667307909934" duration="21628000" />
+      <workItem from="1667344888676" duration="7281000" />
+      <workItem from="1667385475284" duration="30374000" />
+      <workItem from="1667436258049" duration="8516000" />
+      <workItem from="1667474857970" duration="33178000" />
+      <workItem from="1667566131205" duration="11858000" />
+      <workItem from="1667578884983" duration="40000" />
+      <workItem from="1667578932412" duration="464000" />
+      <workItem from="1667579503839" duration="1575000" />
+      <workItem from="1667581274459" duration="3273000" />
+      <workItem from="1667584982360" duration="264000" />
+      <workItem from="1667591828598" duration="176000" />
+      <workItem from="1667592298619" duration="387000" />
+      <workItem from="1667593981858" duration="11000" />
+      <workItem from="1667593999107" duration="27000" />
+      <workItem from="1667594033245" duration="48000" />
+      <workItem from="1667594111191" duration="647000" />
+      <workItem from="1667596629775" duration="100000" />
+      <workItem from="1667596916177" duration="29000" />
+      <workItem from="1667596953057" duration="532000" />
+      <workItem from="1667597494072" duration="10000" />
+      <workItem from="1667600169108" duration="269000" />
+      <workItem from="1667600452437" duration="943000" />
+      <workItem from="1667601404720" duration="17000" />
+      <workItem from="1667601428821" duration="55000" />
+      <workItem from="1667621221615" duration="36000" />
+      <workItem from="1667621263900" duration="324000" />
+      <workItem from="1667621601448" duration="419000" />
+      <workItem from="1667622031786" duration="19000" />
+      <workItem from="1667648301114" duration="19000" />
+      <workItem from="1667648869801" duration="16889000" />
+      <workItem from="1667673475309" duration="57000" />
+      <workItem from="1667692567600" duration="15933000" />
+      <workItem from="1667732881413" duration="13322000" />
+      <workItem from="1667746510824" duration="140000" />
+      <workItem from="1667746664829" duration="2430000" />
+      <workItem from="1667749301454" duration="746000" />
+      <workItem from="1667750191009" duration="559000" />
+      <workItem from="1667750764589" duration="13734000" />
     </task>
+    <task id="LOCAL-00001" summary="switch to constructed Dynam0RMClient">
+      <created>1667318038898</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1667318038898</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -118,6 +272,20 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="switch to constructed Dynam0RMClient" />
+    <option name="LAST_COMMIT_MESSAGE" value="switch to constructed Dynam0RMClient" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/tests/song.test.ts</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -1,11 +1,12 @@
 import {GlobalSecondaryIndex, LocalSecondaryIndex} from "@aws-sdk/client-dynamodb"
 import {QueryCommand, QueryCommandInput, QueryCommandOutput} from "@aws-sdk/lib-dynamodb"
+
 import {iterateConditionsArray} from 'src/iterators'
 import {handleConditions} from "src/generators"
-import {SimpleCommand} from "src/commands/command"
+import {PaginatedCommand} from './command'
 import {Class, Condition, QueryObject} from 'src/types'
-import {Dynam0RMTable} from "src/table";
-import {isQuerySymbol} from "src/validation";
+import {Dynam0RMTable} from 'src/table'
+import {isQuerySymbol} from 'src/validation'
 
 interface QueryConfig {
     Limit?: number
@@ -13,7 +14,7 @@ interface QueryConfig {
     ScanIndexForward?: boolean
 }
 
-export class Query<T extends Dynam0RMTable> extends SimpleCommand<QueryCommandInput, QueryCommandOutput> {
+export class Query<T extends Dynam0RMTable> extends PaginatedCommand<QueryCommandInput, QueryCommandOutput> {
     protected readonly command: QueryCommand
     constructor(target: Class<T>,
                 hashValue: string | number,

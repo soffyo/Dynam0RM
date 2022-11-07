@@ -1,14 +1,17 @@
-import {Connection, HashKey, RangeKey, TimeToLive, Ignore} from 'src/decorators'
 import * as dynamoDBConfig from './dbconfig.json'
-import {Dynam0RM} from '../src'
-import 'src/operators'
+import {Dynam0RMClient, Table} from '../src'
+import {HashKey, RangeKey, Local, TimeToLive, Ignore} from 'src/decorators'
+import 'src/global-operators'
 
-@Connection({dynamoDBConfig, tableName: 'Songs Custom Table Name'})
-class Song extends Dynam0RM.Table {
+const Dynam0RM = new Dynam0RMClient(dynamoDBConfig)
+
+@Dynam0RM.Connection({TableName: 'Song Table TYo'})
+class Song extends Table {
     @HashKey
     artist: string
     @RangeKey
     title: string
+    @Local('myIndex').RangeKey
     album?: string
     year?: number
     genre?: string[]
@@ -21,7 +24,7 @@ class Song extends Dynam0RM.Table {
 }
 
 test('Song', async function () {
-    const createTable = await Song.createTable()
+    const createTable = await Song.create()
 
     const songs: Song[] = []
     const addSongInfo = async (song: Song, title: string, album: string, year: number) => {
@@ -53,9 +56,9 @@ test('Song', async function () {
     await Song.make({artist: 'Nino', title: 'Popcorn & Patatine', album: 'Nu Jeans & Na Maglietta'}).save({overwrite: false})
     await Song.make({artist: 'RHCP', title: 'Scar Tissue', album: 'Californication', year: 1998}).save({overwrite: false})
 
-    const k = await Song.keys({'Michael Jackson': 'Jam'}).if({album: Contains('Dadsf')}).update({year: Increment(110)})
+    const k = await Song.select({'Michael Jackson':'Jam'}).if({album: Contains('Dang')}).update({year: Increment(110)})
 
-    console.dir(k, {depth: null})
+    console.dir(await Song.describe(), {depth: null})
 
-    await Song.destroy()
+    await Song.delete()
 })

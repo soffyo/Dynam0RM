@@ -1,4 +1,4 @@
-import { propsToArray } from "src/utils"
+import { propsToArray } from 'src/utils'
 
 export function attributeNames(input: string[]|{[k:string]:any}) {
     let names = {}

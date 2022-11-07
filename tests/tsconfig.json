@@ -5,7 +5,10 @@
         "resolveJsonModule": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "noEmit": true
+        "noEmit": true,
     },
     "include": ["/**/*"],
+    "ts-node": {
+        "require": ["tsconfig-paths/register"]
+    }
 }

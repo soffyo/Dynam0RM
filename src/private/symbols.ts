@@ -20,27 +20,28 @@ export const attributeType = Symbol.for('attribute_type')
 export const condition = {...query, contains, into, size, attributeExists, attributeType}
 
 // Update operators
-export const add = Symbol.for('add')
-export const Delete = Symbol.for('delete')
-export const append = Symbol.for('append')
-export const prepend = Symbol.for('prepend')
-export const remove = Symbol.for('remove')
-export const increment = Symbol.for('increment')
-export const decrement = Symbol.for('decrement')
-export const overwrite = Symbol.for('overwrite')
+export const add = Symbol('add')
+export const Delete = Symbol('delete')
+export const append = Symbol('append')
+export const prepend = Symbol('prepend')
+export const remove = Symbol('remove')
+export const increment = Symbol('increment')
+export const decrement = Symbol('decrement')
+export const overwrite = Symbol('overwrite')
 
 export const update = {overwrite, add, delete: Delete, append, prepend, remove, increment, decrement}
 
 // Properties
-export const keySchema = Symbol.for('keySchema')
-export const attributeDefinitions = Symbol.for('attributeDefinitions')
-export const localIndexes = Symbol.for('localIndexes')
-export const globalIndexes = Symbol.for('globalIndexes')
-export const tableName = Symbol.for('tableName')
-export const client = Symbol.for('client')
-export const dynamodb = Symbol.for('dynamodb')
-export const ttl = Symbol.for('ttl')
-export const ignore = Symbol.for('ignore')
+export const keySchema = Symbol('keySchema')
+export const attributeDefinitions = Symbol('attributeDefinitions')
+export const localIndexes = Symbol('localIndexes')
+export const globalIndexes = Symbol('globalIndexes')
+export const tableName = Symbol('tableName')
+export const client = Symbol('client')
+export const dynamodb = Symbol('dynamodb')
+export const config = Symbol('config')
+export const ttl = Symbol('ttl')
+export const ignore = Symbol('ignore')
 
 export const tableprops = {
     keySchema,
@@ -51,7 +52,8 @@ export const tableprops = {
     client,
     dynamodb,
     ttl,
-    ignore
+    ignore,
+    config
 }
 
 export type UpdateSymbols =
